@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Reflection.PortableExecutable;
 using System.Text;
 
 namespace SqlSchemaParser;
@@ -43,6 +42,17 @@ public sealed class Parser {
 			}
 			ignored.Add(tokenIndex++);
 		}
+	}
+
+	string Name() {
+		var token = tokens[tokenIndex];
+		switch (token.Type) {
+		case kWord:
+		case kQuotedName:
+			tokenIndex++;
+			return token.Value!;
+		}
+		throw Error("expected name");
 	}
 
 	string? Keyword(int i = 0) {
@@ -140,7 +150,8 @@ public sealed class Parser {
 				textIndex = i;
 				continue;
 			case 'N':
-				if (text[i] == '\'') {
+				switch (text[i]) {
+				case '\'':
 					// We are reading everything as Unicode anyway
 					// so the prefix has no special meaning
 					textIndex = i;
