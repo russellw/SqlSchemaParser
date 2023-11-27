@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Text;
+
 namespace SqlSchemaParser;
 public sealed class Parser {
 	public static Schema Parse(string text, string file = "SQL") {
@@ -32,13 +35,13 @@ public sealed class Parser {
 
 	void Lex() {
 		while (textIndex < text.Length) {
-			var end = textIndex + 1;
 			int k = text[textIndex];
+			var i = textIndex + 1;
 			switch (k) {
 			case '|':
-				switch (text[end]) {
+				switch (text[i]) {
 				case '|':
-					end = textIndex + 2;
+					i = textIndex + 2;
 					k = kDoublePipe;
 					break;
 				}
@@ -46,16 +49,16 @@ public sealed class Parser {
 			case '!':
 				switch (k) {
 				case '=':
-					end = textIndex + 2;
+					i = textIndex + 2;
 					k = kNotEqual;
 					break;
 				case '<':
 					// https://stackoverflow.com/questions/77475517/what-are-the-t-sql-and-operators-for
-					end = textIndex + 2;
+					i = textIndex + 2;
 					k = kGreaterEqual;
 					break;
 				case '>':
-					end = textIndex + 2;
+					i = textIndex + 2;
 					k = kLessEqual;
 					break;
 				}
@@ -63,7 +66,7 @@ public sealed class Parser {
 			case '>':
 				switch (k) {
 				case '=':
-					end = textIndex + 2;
+					i = textIndex + 2;
 					k = kGreaterEqual;
 					break;
 				}
@@ -71,29 +74,29 @@ public sealed class Parser {
 			case '<':
 				switch (k) {
 				case '=':
-					end = textIndex + 2;
+					i = textIndex + 2;
 					k = kLessEqual;
 					break;
 				case '>':
-					end = textIndex + 2;
+					i = textIndex + 2;
 					k = kNotEqual;
 					break;
 				}
 				break;
 			case '-':
-				switch (text[end]) {
+				switch (text[i]) {
 				case '-':
 					textIndex = text.IndexOf('\n', textIndex + 2);
 					continue;
 				}
 				break;
 			case '/':
-				switch (text[end]) {
+				switch (text[i]) {
 				case '*':
-					end = text.IndexOf("*/", textIndex + 2);
-					if (end < 0)
+					i = text.IndexOf("*/", textIndex + 2);
+					if (i < 0)
 						throw Error("unclosed /*");
-					textIndex = end + 2;
+					textIndex = i + 2;
 					continue;
 				}
 				break;
@@ -115,7 +118,7 @@ public sealed class Parser {
 			case '\f':
 			case '\v':
 			case ' ':
-				textIndex = end;
+				textIndex = i;
 				continue;
 			case 'A':
 			case 'B':
@@ -181,6 +184,9 @@ public sealed class Parser {
 			case '9':
 				Word();
 				continue;
+			case '"':
+				DoubleQuote();
+				continue;
 			default:
 				// Common letters are handled in the switch for speed
 				// but there are other letters in Unicode
@@ -191,16 +197,48 @@ public sealed class Parser {
 
 				// Likewise whitespace
 				if (char.IsWhiteSpace((char)k)) {
-					textIndex = end;
+					textIndex = i;
 					continue;
 				}
 
 				throw Error("stray " + (char)k);
 			}
-			tokens.Add(new Token(textIndex, end, k));
-			textIndex = end;
+			tokens.Add(new Token(textIndex, i, k));
+			textIndex = i;
 		}
 		tokens.Add(new Token(textIndex, textIndex, -1));
+	}
+
+	// For unusual identifiers, standard SQL uses double quotes
+	void DoubleQuote() {
+		Debug.Assert(text[textIndex] == '"');
+		var i = textIndex + 1;
+		var sb = new StringBuilder();
+		while (i < text.Length) {
+			switch (text[i]) {
+			case '\\':
+				switch (text[i + 1]) {
+				case '"':
+				case '\\':
+					i++;
+					break;
+				}
+				break;
+			case '"':
+				i++;
+				switch (text[i]) {
+				case '"':
+					break;
+				default:
+					tokens.Add(new Token(textIndex, i, kQuotedName, sb.ToString()));
+					textIndex = i;
+					return;
+				}
+				break;
+			}
+			sb.Append(text[i++]);
+		}
+		throw Error("unclosed \"");
 	}
 
 	void Word() {
