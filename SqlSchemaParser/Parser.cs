@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection.PortableExecutable;
 using System.Text;
 
 namespace SqlSchemaParser;
@@ -22,7 +23,7 @@ public sealed class Parser {
 	int textIndex;
 	readonly List<Token> tokens = new();
 	int tokenIndex;
-	readonly List<int> unused = new();
+	readonly List<int> ignored = new();
 	readonly Schema schema = new();
 
 	Parser(string text, string file) {
@@ -40,7 +41,7 @@ public sealed class Parser {
 				}
 				break;
 			}
-			unused.Add(tokenIndex++);
+			ignored.Add(tokenIndex++);
 		}
 	}
 
@@ -200,6 +201,8 @@ public sealed class Parser {
 			case 'x':
 			case 'y':
 			case 'z':
+				Word();
+				continue;
 			case '0':
 			case '1':
 			case '2':
@@ -210,8 +213,14 @@ public sealed class Parser {
 			case '7':
 			case '8':
 			case '9':
-				Word();
+				Number();
 				continue;
+			case '.':
+				if (char.IsDigit(text[i])) {
+					Number();
+					continue;
+				}
+				break;
 			case '"':
 				DoubleQuote();
 				continue;
@@ -227,12 +236,18 @@ public sealed class Parser {
 			default:
 				// Common letters are handled in the switch for speed
 				// but there are other letters in Unicode
-				if (char.IsLetterOrDigit((char)k)) {
+				if (char.IsLetter((char)k)) {
 					Word();
 					continue;
 				}
 
-				// Likewise whitespace
+				// Likewise digits
+				if (char.IsDigit((char)k)) {
+					Word();
+					continue;
+				}
+
+				// And whitespace
 				if (char.IsWhiteSpace((char)k)) {
 					textIndex = i;
 					continue;
@@ -373,6 +388,19 @@ public sealed class Parser {
 			i++;
 		while (IsWordPart(text[i]));
 		tokens.Add(new Token(textIndex, i, kWord, text[textIndex..i]));
+		textIndex = i;
+	}
+
+	void Number() {
+		Debug.Assert(char.IsDigit(text[textIndex]) || text[textIndex] == '.');
+		var i = textIndex;
+		while (IsWordPart(text[i]))
+			i++;
+		if (text[i] == '.')
+			do
+				i++;
+			while (IsWordPart(text[i]));
+		tokens.Add(new Token(textIndex, i, kNumber, text[textIndex..i]));
 		textIndex = i;
 	}
 

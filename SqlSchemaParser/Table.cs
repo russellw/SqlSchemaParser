@@ -1,9 +1,9 @@
 ﻿namespace SqlSchemaParser;
 public sealed class Table {
-	public string Name;
+	public QualifiedName Name;
 	public List<Column> Columns = new();
 
-	public Table(string name) {
+	public Table(QualifiedName name) {
 		Name = name;
 	}
 }
