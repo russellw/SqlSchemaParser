@@ -1,7 +1,7 @@
 namespace SqlSchemaParser;
 public sealed class Parser {
-	public static Schema Parse(string text, string file = "SQL", int line = 1) {
-		var parser = new Parser(text, file, line);
+	public static Schema Parse(string text, string file = "SQL") {
+		var parser = new Parser(text, file);
 		return parser.schema;
 	}
 
@@ -16,19 +16,17 @@ public sealed class Parser {
 
 	string text;
 	string file;
-	int line;
 
 	int textIndex;
 	List<Token> tokens = new();
 
 	Schema schema = new();
 
-	Parser(string text, string file, int line) {
+	Parser(string text, string file) {
 		if (!text.EndsWith('\n'))
 			text += '\n';
 		this.text = text;
 		this.file = file;
-		this.line = line;
 		Lex();
 	}
 
@@ -92,9 +90,10 @@ public sealed class Parser {
 			case '/':
 				switch (text[end]) {
 				case '*':
-					textIndex = text.IndexOf("*/", textIndex + 2);
-					if (textIndex < 0)
+					end = text.IndexOf("*/", textIndex + 2);
+					if (end < 0)
 						throw Error("unclosed /*");
+					textIndex = end + 2;
 					continue;
 				}
 				break;
@@ -125,13 +124,14 @@ public sealed class Parser {
 		tokens.Add(new Token(textIndex, textIndex, -1));
 	}
 
+	// Error functions return exception objects instead of throwing immediately
+	// so 'throw Error(...)' can mark the end of a case block
 	Exception Error(string message) {
-		return Error(message, line);
-	}
+		int line = 1;
+		for (int i = 0; i < textIndex; i++)
+			if (text[i] == '\n')
+				line++;
 
-	Exception Error(string message, int line) {
-		// Error functions return exception objects instead of throwing immediately
-		// so 'throw Error(...)' can mark the end of a case block
 		return new FormatException($"{file}:{line}: {message}");
 	}
 }

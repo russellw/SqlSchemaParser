@@ -9,4 +9,30 @@ public class UnitTest1
         Parser.Parse("");
         Parser.Parse("\t");
     }
+
+    [Fact]
+    public void LineComment()
+    {
+        Parser.Parse("--");
+        Parser.Parse("--\r\n--\r\n");
+    }
+
+    [Fact]
+    public void BlockComment()
+    {
+        Parser.Parse("/**/");
+        Parser.Parse("/***/");
+        Parser.Parse("/****/");
+        Parser.Parse("/*****/");
+        Parser.Parse("/* /*/");
+        Parser.Parse("/* /**/");
+        Parser.Parse("/* /***/");
+        Parser.Parse("/* /****/");
+
+        var e = Assert.Throws<FormatException>(() => Parser.Parse("/*/"));
+        Assert.Matches(".*:1: ", e.Message);
+
+        e = Assert.Throws<FormatException>(() => Parser.Parse("\n/*"));
+        Assert.Matches(".*:2: ", e.Message);
+    }
 }
