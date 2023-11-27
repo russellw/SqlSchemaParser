@@ -1,5 +1,8 @@
+using SqlSchemaParser;
+
 class Program {
 	static void Main(string[] args) {
-		Console.WriteLine("Hello, World!");
+        Parser.Parse("");
+        Console.WriteLine("Hello, World!");
 	}
 }
