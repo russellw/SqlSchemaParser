@@ -187,6 +187,15 @@ public sealed class Parser {
 			case '"':
 				DoubleQuote();
 				continue;
+			case '\'':
+				SingleQuote();
+				continue;
+			case '`':
+				Backquote();
+				continue;
+			case '[':
+				Square();
+				continue;
 			default:
 				// Common letters are handled in the switch for speed
 				// but there are other letters in Unicode
@@ -207,6 +216,94 @@ public sealed class Parser {
 			textIndex = i;
 		}
 		tokens.Add(new Token(textIndex, textIndex, -1));
+	}
+
+	// For string literals, single quote is reliably portable across dialects
+	void SingleQuote() {
+		Debug.Assert(text[textIndex] == '\'');
+		var i = textIndex + 1;
+		var sb = new StringBuilder();
+		while (i < text.Length) {
+			switch (text[i]) {
+			case '\\':
+				switch (text[i + 1]) {
+				case '\'':
+				case '\\':
+					i++;
+					break;
+				}
+				break;
+			case '\'':
+				i++;
+				switch (text[i]) {
+				case '\'':
+					break;
+				default:
+					tokens.Add(new Token(textIndex, i, kStringLiteral, sb.ToString()));
+					textIndex = i;
+					return;
+				}
+				break;
+			}
+			sb.Append(text[i++]);
+		}
+		throw Error("unclosed '");
+	}
+
+	// For unusual identifiers, MySQL uses backquotes
+	void Backquote() {
+		Debug.Assert(text[textIndex] == '`');
+		var i = textIndex + 1;
+		var sb = new StringBuilder();
+		while (i < text.Length) {
+			switch (text[i]) {
+			case '\\':
+				switch (text[i + 1]) {
+				case '`':
+				case '\\':
+					i++;
+					break;
+				}
+				break;
+			case '`':
+				i++;
+				switch (text[i]) {
+				case '`':
+					break;
+				default:
+					tokens.Add(new Token(textIndex, i, kQuotedName, sb.ToString()));
+					textIndex = i;
+					return;
+				}
+				break;
+			}
+			sb.Append(text[i++]);
+		}
+		throw Error("unclosed `");
+	}
+
+	// For unusual identifiers, SQL Server uses square brackets
+	void Square() {
+		Debug.Assert(text[textIndex] == '[');
+		var i = textIndex + 1;
+		var sb = new StringBuilder();
+		while (i < text.Length) {
+			switch (text[i]) {
+			case ']':
+				i++;
+				switch (text[i]) {
+				case ']':
+					break;
+				default:
+					tokens.Add(new Token(textIndex, i, kQuotedName, sb.ToString()));
+					textIndex = i;
+					return;
+				}
+				break;
+			}
+			sb.Append(text[i++]);
+		}
+		throw Error("unclosed [");
 	}
 
 	// For unusual identifiers, standard SQL uses double quotes
@@ -242,6 +339,7 @@ public sealed class Parser {
 	}
 
 	void Word() {
+		Debug.Assert(IsWordPart(text[textIndex]));
 		var i = textIndex;
 		do
 			i++;
