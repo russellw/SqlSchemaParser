@@ -429,6 +429,6 @@ public sealed class Parser {
 			if (text[i] == '\n')
 				line++;
 
-		return new FormatException($"{file}:{line}: {message}");
+		return new SqlError($"{file}:{line}: {message}");
 	}
 }

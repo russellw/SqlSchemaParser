@@ -2,7 +2,10 @@ using SqlSchemaParser;
 
 class Program {
 	static void Main(string[] args) {
-        Parser.Parse("");
-        Console.WriteLine("Hello, World!");
+		try {
+			Parser.Parse("/*");
+		} catch (Exception e) {
+			Console.WriteLine(e.Message);
+		}
 	}
 }

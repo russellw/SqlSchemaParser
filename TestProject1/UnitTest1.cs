@@ -25,10 +25,10 @@ public class UnitTest1 {
 		Parser.Parse("/* /***/");
 		Parser.Parse("/* /****/");
 
-		var e = Assert.Throws<FormatException>(() => Parser.Parse("/*/"));
+		var e = Assert.Throws<SqlError>(() => Parser.Parse("/*/"));
 		Assert.Matches(".*:1: ", e.Message);
 
-		e = Assert.Throws<FormatException>(() => Parser.Parse("\n/*"));
+		e = Assert.Throws<SqlError>(() => Parser.Parse("\n/*"));
 		Assert.Matches(".*:2: ", e.Message);
 	}
 }
