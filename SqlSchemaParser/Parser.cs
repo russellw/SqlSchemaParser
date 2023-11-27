@@ -17,13 +17,13 @@ public sealed class Parser {
 	const int kStringLiteral = -8;
 	const int kWord = -9;
 
-	string text;
-	string file;
-
+	readonly string text;
+	readonly string file;
 	int textIndex;
-	List<Token> tokens = new();
-
-	Schema schema = new();
+	readonly List<Token> tokens = new();
+	int tokenIndex;
+	readonly List<int> unused = new();
+	readonly Schema schema = new();
 
 	Parser(string text, string file) {
 		if (!text.EndsWith('\n'))
@@ -31,6 +31,24 @@ public sealed class Parser {
 		this.text = text;
 		this.file = file;
 		Lex();
+		while (tokens[tokenIndex].Type != -1) {
+			switch (Keyword()) {
+			case "create":
+				switch (Keyword(1)) {
+				case "table":
+					break;
+				}
+				break;
+			}
+			unused.Add(tokenIndex++);
+		}
+	}
+
+	string? Keyword(int i = 0) {
+		var token = tokens[tokenIndex + i];
+		if (token.Type != kWord)
+			return null;
+		return token.Value!.ToLowerInvariant();
 	}
 
 	void Lex() {
