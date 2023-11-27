@@ -55,6 +55,24 @@ public sealed class Parser {
 		throw Error("expected name");
 	}
 
+	bool Eat(int k) {
+		var token = tokens[tokenIndex];
+		if (token.Type == k) {
+			tokenIndex++;
+			return true;
+		}
+		return false;
+	}
+
+	bool Eat(string s) {
+		var token = tokens[tokenIndex];
+		if (token.Type == kWord && string.Equals(token.Value, s, StringComparison.OrdinalIgnoreCase)) {
+			tokenIndex++;
+			return true;
+		}
+		return false;
+	}
+
 	string? Keyword(int i = 0) {
 		var token = tokens[tokenIndex + i];
 		if (token.Type != kWord)
@@ -63,6 +81,7 @@ public sealed class Parser {
 	}
 
 	void Lex() {
+		Debug.Assert(textIndex == 0);
 		while (textIndex < text.Length) {
 			int k = text[textIndex];
 			var i = textIndex + 1;
