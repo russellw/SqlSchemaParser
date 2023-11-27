@@ -1,7 +1,3 @@
-namespace SqlSchemaParser
-{
-    public class Class1
-    {
-
-    }
+namespace SqlSchemaParser {
+public class Class1 {}
 }
