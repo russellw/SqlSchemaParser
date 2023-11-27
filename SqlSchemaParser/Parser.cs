@@ -120,6 +120,16 @@ public sealed class Parser {
 			case ' ':
 				textIndex = i;
 				continue;
+			case 'N':
+				if (text[i] == '\'') {
+					// We are reading everything as Unicode anyway
+					// so the prefix has no special meaning
+					textIndex = i;
+					SingleQuote();
+					return;
+				}
+				Word();
+				return;
 			case 'A':
 			case 'B':
 			case 'C':
