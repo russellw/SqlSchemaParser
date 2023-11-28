@@ -357,6 +357,13 @@ public sealed class Parser {
 					continue;
 				}
 				break;
+			case '$':
+				if (char.IsDigit(text[i])) {
+					textIndex = i;
+					Number();
+					continue;
+				}
+				throw Error("stray " + (char)k);
 			case '"':
 				DoubleQuote();
 				continue;

@@ -137,6 +137,24 @@ public class UnitTest1 {
 		Assert.Equal(2, schema.Tables.Count);
 	}
 
+	[Fact]
+	public void Northwind() {
+		var schema = ParseFile("sql-server-samples/instnwnd.sql");
+		Assert.Equal(13, schema.Tables.Count);
+	}
+
+	[Fact]
+	public void NorthwindAzure() {
+		var schema = ParseFile("sql-server-samples/instnwnd (Azure SQL Database).sql");
+		Assert.Equal(13, schema.Tables.Count);
+	}
+
+	[Fact]
+	public void Pubs() {
+		var schema = ParseFile("sql-server-samples/instpubs.sql");
+		Assert.Equal(11, schema.Tables.Count);
+	}
+
 	static Schema Parse(string text) {
 		var schema = new Schema();
 		Parser.Parse("SQL", text, schema);
