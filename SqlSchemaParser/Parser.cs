@@ -33,6 +33,7 @@ public sealed class Parser {
 		this.text = text;
 		this.schema = schema;
 		Lex();
+		tokenIndex = 0;
 		while (tokens[tokenIndex].Type != -1) {
 			switch (Keyword()) {
 			case "create":
