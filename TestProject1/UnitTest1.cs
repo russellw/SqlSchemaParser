@@ -135,6 +135,14 @@ public class UnitTest1 {
 	public void SampleDB1() {
 		var schema = ParseFile("sql-server-samples/sampleDB1.sql");
 		Assert.Equal(2, schema.Tables.Count);
+
+		var emp = schema.Tables[0];
+		var key = emp.PrimaryKey!;
+		Assert.Single(key.Columns);
+		Assert.False(key.Columns[0].Nullable);
+
+		var dept = schema.Tables[1];
+		Assert.Null(dept.PrimaryKey);
 	}
 
 	[Fact]

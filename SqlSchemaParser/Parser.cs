@@ -108,6 +108,19 @@ public sealed class Parser {
 				return;
 			}
 			switch (Keyword()) {
+			case "primary":
+				switch (Keyword(1)) {
+				case "key": {
+					token = tokens[tokenIndex];
+					var location = new Location(file, text, token.Start);
+					tokenIndex += 2;
+					var key = new Key(location);
+					key.Add(column);
+					table.PrimaryKey = key;
+					continue;
+				}
+				}
+				break;
 			case "not":
 				switch (Keyword(1)) {
 				case "null":
