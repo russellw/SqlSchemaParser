@@ -163,6 +163,13 @@ public class UnitTest1 {
 		Assert.Equal(11, schema.Tables.Count);
 	}
 
+	[Fact]
+	public void PostgresNorthwind() {
+		var schema = ParseFile("northwind_psql/northwind.sql");
+		// The postgres version has an extra table for US states
+		Assert.Equal(14, schema.Tables.Count);
+	}
+
 	static Schema Parse(string text) {
 		var schema = new Schema();
 		Parser.Parse("SQL", text, schema);
