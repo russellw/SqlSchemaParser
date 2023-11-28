@@ -69,6 +69,7 @@ public class UnitTest1 {
 	public void Ignored() {
 		var schema = Parse(" \n");
 		Assert.Empty(schema.Ignored);
+		Assert.Equal("", schema.IgnoredString());
 
 		schema = Parse("abc\n");
 		Assert.Single(schema.Ignored);
@@ -76,6 +77,7 @@ public class UnitTest1 {
 		Assert.Equal("abc\n", span.Location.Text);
 		Assert.Equal(0, span.Location.Start);
 		Assert.Equal(3, span.End);
+		Assert.NotEqual("", schema.IgnoredString());
 
 		schema = Parse("abc def\n");
 		Assert.Single(schema.Ignored);
@@ -83,6 +85,7 @@ public class UnitTest1 {
 		Assert.Equal("abc def\n", span.Location.Text);
 		Assert.Equal(0, span.Location.Start);
 		Assert.Equal(7, span.End);
+		Assert.NotEqual("", schema.IgnoredString());
 	}
 
 	static Schema Parse(string text) {
