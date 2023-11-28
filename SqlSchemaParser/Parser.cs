@@ -3,8 +3,8 @@ using System.Text;
 
 namespace SqlSchemaParser;
 public sealed class Parser {
-	public static Schema Parse(string text, string file = "SQL") {
-		var parser = new Parser(text, file);
+	public static Schema Parse(string file, string text) {
+		var parser = new Parser(file, text);
 		return parser.schema;
 	}
 
@@ -17,19 +17,19 @@ public sealed class Parser {
 	const int kStringLiteral = -8;
 	const int kWord = -9;
 
-	readonly string text;
 	readonly string file;
+	readonly string text;
 	int textIndex;
 	readonly List<Token> tokens = new();
 	int tokenIndex;
 	readonly List<int> ignored = new();
 	readonly Schema schema = new();
 
-	Parser(string text, string file) {
+	Parser(string file, string text) {
 		if (!text.EndsWith('\n'))
 			text += '\n';
-		this.text = text;
 		this.file = file;
+		this.text = text;
 		Lex();
 		while (tokens[tokenIndex].Type != -1) {
 			switch (Keyword()) {

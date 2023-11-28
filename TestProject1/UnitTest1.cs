@@ -4,31 +4,35 @@ namespace TestProject1;
 public class UnitTest1 {
 	[Fact]
 	public void Blank() {
-		Parser.Parse("");
-		Parser.Parse("\t");
+		Parse("");
+		Parse("\t");
 	}
 
 	[Fact]
 	public void LineComment() {
-		Parser.Parse("--");
-		Parser.Parse("--\r\n--\r\n");
+		Parse("--");
+		Parse("--\r\n--\r\n");
 	}
 
 	[Fact]
 	public void BlockComment() {
-		Parser.Parse("/**/");
-		Parser.Parse("/***/");
-		Parser.Parse("/****/");
-		Parser.Parse("/*****/");
-		Parser.Parse("/* /*/");
-		Parser.Parse("/* /**/");
-		Parser.Parse("/* /***/");
-		Parser.Parse("/* /****/");
+		Parse("/**/");
+		Parse("/***/");
+		Parse("/****/");
+		Parse("/*****/");
+		Parse("/* /*/");
+		Parse("/* /**/");
+		Parse("/* /***/");
+		Parse("/* /****/");
 
-		var e = Assert.Throws<SqlError>(() => Parser.Parse("/*/"));
+		var e = Assert.Throws<SqlError>(() => Parse("/*/"));
 		Assert.Matches(".*:1: ", e.Message);
 
-		e = Assert.Throws<SqlError>(() => Parser.Parse("\n/*"));
+		e = Assert.Throws<SqlError>(() => Parse("\n/*"));
 		Assert.Matches(".*:2: ", e.Message);
+	}
+
+	static void Parse(string text) {
+		Parser.Parse("SQL", text);
 	}
 }
