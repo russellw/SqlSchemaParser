@@ -78,6 +78,11 @@ public sealed class Parser {
 			throw Error("expected " + k);
 	}
 
+	void Expect(string s) {
+		if (!Eat(s))
+			throw Error("expected " + s.ToUpperInvariant());
+	}
+
 	QualifiedName DataTypeName() {
 		switch (Word()) {
 		case "character":
@@ -201,8 +206,45 @@ public sealed class Parser {
 		return int.Parse(token.Value!, System.Globalization.CultureInfo.InvariantCulture);
 	}
 
+	Key Key() {
+		switch (Word()) {
+		case "primary":
+			tokenIndex++;
+			Expect("key");
+			break;
+		case "unique":
+			tokenIndex++;
+			Eat("key");
+			break;
+		default:
+			throw Error("expected key");
+		}
+		Expect('(');
+		var token = tokens[tokenIndex];
+		var location = new Location(file, text, token.Start);
+		var key = new Key(location);
+		do
+			key.ColumnNames.Add(Name());
+		while (Eat(','));
+		Expect(')');
+		return key;
+	}
+
 	void Column(Table table) {
+		// Might be a table constraint instead of a column
+		switch (Word()) {
+		case "primary":
+			table.PrimaryKey = Key();
+			return;
+		case "unique":
+			table.UniqueKeys.Add(Key());
+			return;
+		}
+
+		// This is a column
 		var column = new Column(Name(), DataType());
+
+		// Search the postscript for column constraints
 		for (;;) {
 			var token = tokens[tokenIndex];
 			switch (token.Type) {
@@ -308,9 +350,9 @@ public sealed class Parser {
 
 	string? Word(int i = 0) {
 		var token = tokens[tokenIndex + i];
-		if (token.Type != kWord)
-			return null;
-		return token.Value!;
+		if (token.Type == kWord)
+			return token.Value!;
+		return null;
 	}
 
 	void Lex() {

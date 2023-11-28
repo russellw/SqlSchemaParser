@@ -5,6 +5,7 @@ public sealed class Table {
 	public QualifiedName Name;
 	public List<Column> Columns = new();
 	public Key? PrimaryKey;
+	public List<Key> UniqueKeys = new();
 
 	public override string ToString() {
 		var sb = new StringBuilder("CREATE TABLE ");
