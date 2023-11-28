@@ -9,4 +9,12 @@ public readonly struct Location {
 		Text = text;
 		Start = start;
 	}
+
+	public override string ToString() {
+		int line = 1;
+		for (int i = 0; i < Start; i++)
+			if (Text[i] == '\n')
+				line++;
+		return $"{File}:{line}";
+	}
 }

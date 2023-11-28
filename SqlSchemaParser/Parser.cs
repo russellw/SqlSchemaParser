@@ -23,7 +23,7 @@ public sealed class Parser {
 	int textIndex;
 	readonly List<Token> tokens = new();
 
-	int tokenIndex;
+	int tokenIndex = -1;
 	readonly List<int> ignored = new();
 
 	Parser(string file, string text, Schema schema) {
@@ -505,11 +505,12 @@ public sealed class Parser {
 	// Error functions return exception objects instead of throwing immediately
 	// so 'throw Error(...)' can mark the end of a case block
 	Exception Error(string message) {
-		int line = 1;
-		for (int i = 0; i < textIndex; i++)
-			if (text[i] == '\n')
-				line++;
-
-		return new SqlError($"{file}:{line}: {message}");
+		var i = textIndex;
+		if (tokenIndex >= 0) {
+			var token = tokens[tokenIndex];
+			i = token.Start;
+		}
+		var location = new Location(file, text, i);
+		return new SqlError($"{location}: {message}");
 	}
 }
