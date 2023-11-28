@@ -10,7 +10,7 @@ public record struct DataType {
 		TypeName = new QualifiedName(typeName);
 	}
 
-	public override string ToString() {
+	public override readonly string ToString() {
 		var sb = new StringBuilder();
 		sb.Append(TypeName.ToString());
 		if (Size >= 0) {

@@ -101,6 +101,12 @@ public class UnitTest1 {
 	}
 
 	[Fact]
+	public void Column() {
+		var c = new Column("foo", new DataType("varchar"));
+		Assert.Equal("foo varchar", c.ToString());
+	}
+
+	[Fact]
 	public void CreateTable() {
 		var schema = Parse("create table table1(column1 int)");
 		Assert.Empty(schema.Ignored);
