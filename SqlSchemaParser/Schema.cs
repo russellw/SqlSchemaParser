@@ -17,4 +17,13 @@ public sealed class Schema {
 		}
 		return sb.ToString();
 	}
+
+	public override string ToString() {
+		var sb = new StringBuilder();
+		foreach (var table in Tables) {
+			sb.Append(table);
+			sb.Append('\n');
+		}
+		return sb.ToString();
+	}
 }

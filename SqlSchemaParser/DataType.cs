@@ -12,7 +12,7 @@ public record struct DataType {
 
 	public override readonly string ToString() {
 		var sb = new StringBuilder();
-		sb.Append(TypeName.ToString());
+		sb.Append(TypeName);
 		if (Size >= 0) {
 			sb.Append('(');
 			sb.Append(Size);
