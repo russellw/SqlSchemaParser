@@ -21,6 +21,14 @@ public sealed class QualifiedName: Expression {
 		return sb.ToString();
 	}
 
+	public static bool operator ==(QualifiedName a, string b) {
+		return a.Names.Count == 1 && a.Names[0] == b;
+	}
+
+	public static bool operator !=(QualifiedName a, string b) {
+		return !(a == b);
+	}
+
 	public override bool Equals(object? obj) {
 		return obj is QualifiedName name && Names.SequenceEqual(name.Names);
 	}

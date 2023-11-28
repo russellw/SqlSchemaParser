@@ -179,9 +179,15 @@ public sealed class Parser {
 	DataType DataType() {
 		var a = new DataType(DataTypeName());
 		if (Eat('(')) {
-			a.Size = Int();
-			if (Eat(','))
-				a.Scale = Int();
+			if (a.TypeName == "enum") {
+				do
+					a.Values.Add(StringLiteral());
+				while (Eat(','));
+			} else {
+				a.Size = Int();
+				if (Eat(','))
+					a.Scale = Int();
+			}
 			Expect(')');
 		}
 		return a;
@@ -255,6 +261,14 @@ public sealed class Parser {
 		tokenIndex = i;
 	}
 
+	string StringLiteral() {
+		var token = tokens[tokenIndex];
+		if (token.Type != kStringLiteral)
+			throw Error("expected string literal");
+		tokenIndex++;
+		return token.Value!;
+	}
+
 	string Name() {
 		var token = tokens[tokenIndex];
 		switch (token.Type) {
@@ -296,7 +310,7 @@ public sealed class Parser {
 		var token = tokens[tokenIndex + i];
 		if (token.Type != kWord)
 			return null;
-		return token.Value!.ToLowerInvariant();
+		return token.Value!;
 	}
 
 	void Lex() {
@@ -646,7 +660,7 @@ public sealed class Parser {
 		do
 			i++;
 		while (IsWordPart(text[i]));
-		tokens.Add(new Token(textIndex, i, kWord, text[textIndex..i]));
+		tokens.Add(new Token(textIndex, i, kWord, text[textIndex..i].ToLowerInvariant()));
 		textIndex = i;
 	}
 

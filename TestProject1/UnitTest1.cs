@@ -94,6 +94,7 @@ public class UnitTest1 {
 		var a2 = new QualifiedName("a");
 		Assert.Equal(a1, a2);
 		Assert.Equal("a", a1.ToString());
+		Assert.True(a1 == "a");
 
 		a1.Names.Add("b");
 		Assert.NotEqual(a1, a2);
@@ -117,7 +118,7 @@ public class UnitTest1 {
 		Assert.Single(table.Columns);
 		var column = table.Columns[0];
 		Assert.Equal("column1", column.Name);
-		Assert.Equal(new DataType("int"), column.DataType);
+		Assert.True(column.DataType.TypeName == "int");
 
 		schema = Parse("create table table1(column1 int,column2 int)");
 		Assert.Empty(schema.Ignored);
@@ -136,10 +137,9 @@ public class UnitTest1 {
 		Assert.Single(table.Columns);
 		column = table.Columns[0];
 		Assert.Equal("column1", column.Name);
-		var dataType = new DataType("int");
-		dataType.Size = 10;
-		dataType.Scale = 5;
-		Assert.Equal(dataType, column.DataType);
+		Assert.True(column.DataType.TypeName == "int");
+		Assert.True(column.DataType.Size == 10);
+		Assert.True(column.DataType.Scale == 5);
 	}
 
 	[Fact]

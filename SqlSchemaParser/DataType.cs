@@ -1,10 +1,11 @@
 ﻿using System.Text;
 
 namespace SqlSchemaParser;
-public record struct DataType {
+public struct DataType {
 	public QualifiedName TypeName;
 	public int Size = -1;
 	public int Scale = -1;
+	public List<string> Values = new();
 
 	public DataType(string typeName) {
 		TypeName = new QualifiedName(typeName);
