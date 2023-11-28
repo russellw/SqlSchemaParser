@@ -78,8 +78,21 @@ public sealed class Parser {
 			throw Error("expected " + k);
 	}
 
+	QualifiedName DataTypeName() {
+		switch (Keyword()) {
+		case "character":
+			switch (Keyword(1)) {
+			case "varying":
+				tokenIndex += 2;
+				return new QualifiedName("varchar");
+			}
+			break;
+		}
+		return QualifiedName();
+	}
+
 	DataType DataType() {
-		var a = new DataType(QualifiedName());
+		var a = new DataType(DataTypeName());
 		if (Eat('(')) {
 			a.Size = Int();
 			if (Eat(','))
@@ -121,6 +134,9 @@ public sealed class Parser {
 				}
 				}
 				break;
+			case "null":
+				tokenIndex++;
+				continue;
 			case "not":
 				switch (Keyword(1)) {
 				case "null":
