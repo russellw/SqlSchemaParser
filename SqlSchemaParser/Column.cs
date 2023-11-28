@@ -11,6 +11,8 @@ public sealed class Column {
 		sb.Append(Name);
 		sb.Append(' ');
 		sb.Append(DataType);
+		if (!Nullable)
+			sb.Append(" NOT NULL");
 		return sb.ToString();
 	}
 
