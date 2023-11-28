@@ -1,7 +1,6 @@
 ﻿namespace SqlSchemaParser;
 public sealed class QualifiedName: Expression {
 	public List<string> Names = new();
-	public bool Star;
 
 	public QualifiedName() {
 	}

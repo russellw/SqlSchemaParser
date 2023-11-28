@@ -35,13 +35,65 @@ public sealed class Parser {
 			switch (Keyword()) {
 			case "create":
 				switch (Keyword(1)) {
-				case "table":
+				case "table": {
+					tokenIndex += 2;
+					var a = new Table(QualifiedName());
+					while (!Eat('('))
+						Ignore();
+					do {
+						var column = Column();
+						if (column != null)
+							a.Columns.Add(column);
+					} while (Eat(','));
+					Expect(')');
+					while (!Eat(';') && !Eat("go"))
+						Ignore();
+					schema.Tables.Add(a);
 					break;
+				}
 				}
 				break;
 			}
-			ignored.Add(tokenIndex++);
+			Ignore();
 		}
+	}
+
+	void Expect(char k) {
+		if (!Eat(k))
+			throw Error("expected " + k);
+	}
+
+	Column? Column() {
+		var a = new Column(Name());
+		for (;;) {
+			var token = tokens[tokenIndex];
+			switch (token.Type) {
+			case ',':
+			case ')':
+				return a;
+			}
+			Ignore();
+		}
+	}
+
+	void Ignore() {
+		var i = tokenIndex;
+		int depth = 0;
+		do {
+			var token = tokens[i];
+			switch (token.Type) {
+			case -1:
+				throw Error(depth == 0 ? "unexpected end of file" : "unclosed (");
+			case '(':
+				depth++;
+				break;
+			case ')':
+				depth--;
+				break;
+			}
+			ignored.Add(i++);
+		} while (depth > 0);
+		tokenIndex = i;
 	}
 
 	string Name() {
@@ -53,6 +105,14 @@ public sealed class Parser {
 			return token.Value!;
 		}
 		throw Error("expected name");
+	}
+
+	QualifiedName QualifiedName() {
+		var a = new QualifiedName();
+		do
+			a.Names.Add(Name());
+		while (Eat('.'));
+		return a;
 	}
 
 	bool Eat(int k) {
