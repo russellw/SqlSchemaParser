@@ -88,6 +88,27 @@ public class UnitTest1 {
 		Assert.NotEqual("", schema.IgnoredString());
 	}
 
+	[Fact]
+	public void QualifiedName() {
+		var a1 = new QualifiedName("a");
+		var a2 = new QualifiedName("a");
+		Assert.Equal(a1, a2);
+	}
+
+	[Fact]
+	public void CreateTable() {
+		var schema = Parse("create table table1(column1 int)");
+		Assert.Empty(schema.Ignored);
+		Assert.Single(schema.Tables);
+		var table = schema.Tables[0];
+		Assert.Single(table.Name.Names);
+		Assert.Equal("table1", table.Name.Names[0]);
+		Assert.Single(table.Columns);
+		var column = table.Columns[0];
+		Assert.Equal("column1", column.Name);
+		// Assert.Equal(new DataType("int"), column.DataType);
+	}
+
 	static Schema Parse(string text) {
 		var schema = new Schema();
 		Parser.Parse("SQL", text, schema);

@@ -45,10 +45,9 @@ public sealed class Parser {
 							a.Columns.Add(column);
 					} while (Eat(','));
 					Expect(')');
-					while (!Eat(';') && !Eat("go"))
-						Ignore();
+					EndOfStatement();
 					schema.Tables.Add(a);
-					break;
+					continue;
 				}
 				}
 				break;
@@ -70,13 +69,49 @@ public sealed class Parser {
 		}
 	}
 
+	void EndOfStatement() {
+		for (;;) {
+			var token = tokens[tokenIndex];
+			switch (token.Type) {
+			case -1:
+				return;
+			case ';':
+				tokenIndex++;
+				Eat("go");
+				return;
+			}
+			if (Eat("go"))
+				return;
+			Ignore();
+		}
+	}
+
 	void Expect(char k) {
 		if (!Eat(k))
 			throw Error("expected " + k);
 	}
 
+	DataType DataType() {
+		var a = new DataType(QualifiedName());
+		if (Eat('(')) {
+			a.Size = Int();
+			if (Eat(','))
+				a.Scale = Int();
+			Expect(')');
+		}
+		return a;
+	}
+
+	int Int() {
+		var token = tokens[tokenIndex];
+		if (token.Type != kNumber)
+			throw Error("expected integer");
+		tokenIndex++;
+		return int.Parse(token.Value!, System.Globalization.CultureInfo.InvariantCulture);
+	}
+
 	Column? Column() {
-		var a = new Column(Name());
+		var a = new Column(Name(), DataType());
 		for (;;) {
 			var token = tokens[tokenIndex];
 			switch (token.Type) {
