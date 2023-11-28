@@ -81,10 +81,95 @@ public sealed class Parser {
 	QualifiedName DataTypeName() {
 		switch (Keyword()) {
 		case "character":
+		case "char":
 			switch (Keyword(1)) {
+			case "large":
+				switch (Keyword(2)) {
+				case "object":
+					tokenIndex += 3;
+					return new QualifiedName("clob");
+				}
+				break;
 			case "varying":
 				tokenIndex += 2;
 				return new QualifiedName("varchar");
+			}
+			break;
+		case "binary":
+			switch (Keyword(1)) {
+			case "large":
+				switch (Keyword(2)) {
+				case "object":
+					tokenIndex += 3;
+					return new QualifiedName("blob");
+				}
+				break;
+			}
+			break;
+		case "double":
+			switch (Keyword(1)) {
+			case "precision":
+				tokenIndex += 2;
+				return new QualifiedName("double");
+			}
+			break;
+		case "long":
+			switch (Keyword(1)) {
+			case "raw":
+			case "varbinary":
+			case "varchar": {
+				var name = "long " + Keyword(1);
+				tokenIndex += 2;
+				return new QualifiedName(name);
+			}
+			}
+			break;
+		case "time":
+			switch (Keyword(1)) {
+			case "with":
+				switch (Keyword(2)) {
+				case "timezone":
+					tokenIndex += 3;
+					return new QualifiedName("time with timezone");
+				}
+				break;
+			}
+			break;
+		case "timestamp":
+			switch (Keyword(1)) {
+			case "with":
+				switch (Keyword(2)) {
+				case "timezone":
+					tokenIndex += 3;
+					return new QualifiedName("timestamp with timezone");
+				}
+				break;
+			}
+			break;
+		case "interval":
+			switch (Keyword(1)) {
+			case "day":
+				switch (Keyword(2)) {
+				case "to":
+					switch (Keyword(3)) {
+					case "second":
+						tokenIndex += 4;
+						return new QualifiedName("interval day to second");
+					}
+					break;
+				}
+				break;
+			case "year":
+				switch (Keyword(2)) {
+				case "to":
+					switch (Keyword(3)) {
+					case "month":
+						tokenIndex += 4;
+						return new QualifiedName("interval year to month");
+					}
+					break;
+				}
+				break;
 			}
 			break;
 		}
