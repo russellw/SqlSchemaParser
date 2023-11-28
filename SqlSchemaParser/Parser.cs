@@ -29,6 +29,7 @@ public sealed class Parser {
 		this.file = file;
 		this.text = text;
 		Lex();
+		Debug.Assert(textIndex == text.Length);
 		tokenIndex = 0;
 		while (tokens[tokenIndex].Type != -1) {
 			switch (Keyword()) {
@@ -270,10 +271,10 @@ public sealed class Parser {
 					// so the prefix has no special meaning
 					textIndex = i;
 					SingleQuote();
-					return;
+					continue;
 				}
 				Word();
-				return;
+				continue;
 			case 'A':
 			case 'B':
 			case 'C':

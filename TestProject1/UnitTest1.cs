@@ -134,6 +134,7 @@ public class UnitTest1 {
 	[Fact]
 	public void SampleDB1() {
 		var schema = ParseFile("sql-server-samples/sampleDB1.sql");
+		Assert.Equal(2, schema.Tables.Count);
 	}
 
 	static Schema Parse(string text) {
