@@ -37,17 +37,15 @@ public sealed class Parser {
 				switch (Keyword(1)) {
 				case "table": {
 					tokenIndex += 2;
-					var a = new Table(QualifiedName());
+					var table = new Table(QualifiedName());
 					while (!Eat('('))
 						Ignore();
-					do {
-						var column = Column();
-						if (column != null)
-							a.Columns.Add(column);
-					} while (Eat(','));
+					do
+						Column(table);
+					while (Eat(','));
 					Expect(')');
 					EndStatement();
-					schema.Tables.Add(a);
+					schema.Tables.Add(table);
 					continue;
 				}
 				}
@@ -99,21 +97,22 @@ public sealed class Parser {
 		return int.Parse(token.Value!, System.Globalization.CultureInfo.InvariantCulture);
 	}
 
-	Column? Column() {
-		var a = new Column(Name(), DataType());
+	void Column(Table table) {
+		var column = new Column(Name(), DataType());
 		for (;;) {
 			var token = tokens[tokenIndex];
 			switch (token.Type) {
 			case ',':
 			case ')':
-				return a;
+				table.Columns.Add(column);
+				return;
 			}
 			switch (Keyword()) {
 			case "not":
 				switch (Keyword(1)) {
 				case "null":
 					tokenIndex += 2;
-					a.Nullable = false;
+					column.Nullable = false;
 					continue;
 				}
 				break;
