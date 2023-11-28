@@ -181,6 +181,12 @@ public class UnitTest1 {
 		Assert.Equal(14, schema.Tables.Count);
 	}
 
+	[Fact]
+	public void Employees() {
+		var schema = ParseFile("mysql-samples/employees.sql");
+		Assert.Equal(6, schema.Tables.Count);
+	}
+
 	static Schema Parse(string text) {
 		var schema = new Schema();
 		Parser.Parse("SQL", text, schema);

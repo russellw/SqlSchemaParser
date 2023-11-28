@@ -353,10 +353,13 @@ public sealed class Parser {
 			case '-':
 				switch (text[i]) {
 				case '-':
-					textIndex = text.IndexOf('\n', textIndex + 2);
+					textIndex = text.IndexOf('\n', i);
 					continue;
 				}
 				break;
+			case '#':
+				textIndex = text.IndexOf('\n', i);
+				continue;
 			case '/':
 				switch (text[i]) {
 				case '*':
