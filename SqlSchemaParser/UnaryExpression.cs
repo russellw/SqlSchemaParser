@@ -8,7 +8,7 @@ public sealed class UnaryExpression: Expression {
 		Operand = operand;
 	}
 
-	public override bool Equals(object b0) {
+	public override bool Equals(object? b0) {
 		if (b0 is UnaryExpression b)
 			return Op == b.Op && Operand.Equals(b.Operand);
 		return false;

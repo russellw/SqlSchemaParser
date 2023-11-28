@@ -6,7 +6,7 @@ public sealed class StringLiteral: Expression {
 		Value = value;
 	}
 
-	public override bool Equals(object b0) {
+	public override bool Equals(object? b0) {
 		if (b0 is StringLiteral b)
 			return Value == b.Value;
 		return false;

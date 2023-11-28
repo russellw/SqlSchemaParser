@@ -9,7 +9,7 @@ public sealed class QualifiedName: Expression {
 		Names.Add(name);
 	}
 
-	public override bool Equals(object b0) {
+	public override bool Equals(object? b0) {
 		if (b0 is QualifiedName b)
 			return Names.SequenceEqual(b.Names);
 		return false;
