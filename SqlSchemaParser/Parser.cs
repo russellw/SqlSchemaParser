@@ -3,9 +3,8 @@ using System.Text;
 
 namespace SqlSchemaParser;
 public sealed class Parser {
-	public static Schema Parse(string file, string text) {
-		var parser = new Parser(file, text);
-		return parser.schema;
+	public static void Parse(string file, string text, Schema schema) {
+		_ = new Parser(file, text, schema);
 	}
 
 	const int kDoublePipe = -2;
@@ -19,17 +18,20 @@ public sealed class Parser {
 
 	readonly string file;
 	readonly string text;
+	readonly Schema schema;
+
 	int textIndex;
 	readonly List<Token> tokens = new();
+
 	int tokenIndex;
 	readonly List<int> ignored = new();
-	readonly Schema schema = new();
 
-	Parser(string file, string text) {
+	Parser(string file, string text, Schema schema) {
 		if (!text.EndsWith('\n'))
 			text += '\n';
 		this.file = file;
 		this.text = text;
+		this.schema = schema;
 		Lex();
 		while (tokens[tokenIndex].Type != -1) {
 			switch (Keyword()) {

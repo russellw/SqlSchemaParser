@@ -32,7 +32,9 @@ public class UnitTest1 {
 		Assert.Matches(".*:2: ", e.Message);
 	}
 
-	static void Parse(string text) {
-		Parser.Parse("SQL", text);
+	static Schema Parse(string text) {
+		var schema = new Schema();
+		Parser.Parse("SQL", text, schema);
+		return schema;
 	}
 }
