@@ -93,6 +93,11 @@ public class UnitTest1 {
 		var a1 = new QualifiedName("a");
 		var a2 = new QualifiedName("a");
 		Assert.Equal(a1, a2);
+		Assert.Equal("a", a1.ToString());
+
+		a1.Names.Add("b");
+		Assert.NotEqual(a1, a2);
+		Assert.Equal("a.b", a1.ToString());
 	}
 
 	[Fact]
