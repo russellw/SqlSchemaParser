@@ -9,9 +9,9 @@ public sealed class BinaryExpression: Expression {
 		Right = right;
 	}
 
-	public override bool Eq(Expression b0) {
+	public override bool Equals(object b0) {
 		if (b0 is BinaryExpression b)
-			return Op == b.Op && Left.Eq(b.Left) && Right.Eq(b.Right);
+			return Op == b.Op && Left.Equals(b.Left) && Right.Equals(b.Right);
 		return false;
 	}
 }

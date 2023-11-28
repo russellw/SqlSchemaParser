@@ -6,7 +6,7 @@ public sealed class NumberLiteral: Expression {
 		Value = value;
 	}
 
-	public override bool Eq(Expression b0) {
+	public override bool Equals(object b0) {
 		if (b0 is NumberLiteral b)
 			return Value == b.Value;
 		return false;
