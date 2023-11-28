@@ -18,11 +18,8 @@ public sealed class Parser {
 
 	readonly string file;
 	readonly string text;
-	readonly Schema schema;
-
 	int textIndex;
 	readonly List<Token> tokens = new();
-
 	int tokenIndex = -1;
 	readonly List<int> ignored = new();
 
@@ -31,7 +28,6 @@ public sealed class Parser {
 			text += '\n';
 		this.file = file;
 		this.text = text;
-		this.schema = schema;
 		Lex();
 		tokenIndex = 0;
 		while (tokens[tokenIndex].Type != -1) {
@@ -58,6 +54,19 @@ public sealed class Parser {
 				break;
 			}
 			Ignore();
+		}
+		for (int i = 0; i < ignored.Count;) {
+			var t = ignored[i++];
+			var token = tokens[t];
+			var location = new Location(file, text, token.Start);
+			var end = token.End;
+			while (i < ignored.Count && ignored[i] == t + 1) {
+				t = ignored[i++];
+				token = tokens[t];
+				end = token.End;
+			}
+			var span = new Span(location, end);
+			schema.Ignored.Add(span);
 		}
 	}
 
