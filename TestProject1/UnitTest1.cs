@@ -131,9 +131,20 @@ public class UnitTest1 {
 		Assert.Equal(dataType, column.DataType);
 	}
 
+	[Fact]
+	public void SampleDB1() {
+		var schema = ParseFile("sql-server-samples/sampleDB1.sql");
+	}
+
 	static Schema Parse(string text) {
 		var schema = new Schema();
 		Parser.Parse("SQL", text, schema);
+		return schema;
+	}
+
+	static Schema ParseFile(string file) {
+		var schema = new Schema();
+		Parser.Parse(file, File.ReadAllText(file), schema);
 		return schema;
 	}
 }
