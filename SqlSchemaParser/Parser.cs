@@ -32,9 +32,9 @@ public sealed class Parser {
 		Debug.Assert(textIndex == text.Length);
 		tokenIndex = 0;
 		while (tokens[tokenIndex].Type != -1) {
-			switch (Keyword()) {
+			switch (Word()) {
 			case "create":
-				switch (Keyword(1)) {
+				switch (Word(1)) {
 				case "table": {
 					tokenIndex += 2;
 					var table = new Table(QualifiedName());
@@ -79,12 +79,12 @@ public sealed class Parser {
 	}
 
 	QualifiedName DataTypeName() {
-		switch (Keyword()) {
+		switch (Word()) {
 		case "character":
 		case "char":
-			switch (Keyword(1)) {
+			switch (Word(1)) {
 			case "large":
-				switch (Keyword(2)) {
+				switch (Word(2)) {
 				case "object":
 					tokenIndex += 3;
 					return new QualifiedName("clob");
@@ -96,9 +96,9 @@ public sealed class Parser {
 			}
 			break;
 		case "binary":
-			switch (Keyword(1)) {
+			switch (Word(1)) {
 			case "large":
-				switch (Keyword(2)) {
+				switch (Word(2)) {
 				case "object":
 					tokenIndex += 3;
 					return new QualifiedName("blob");
@@ -107,27 +107,27 @@ public sealed class Parser {
 			}
 			break;
 		case "double":
-			switch (Keyword(1)) {
+			switch (Word(1)) {
 			case "precision":
 				tokenIndex += 2;
 				return new QualifiedName("double");
 			}
 			break;
 		case "long":
-			switch (Keyword(1)) {
+			switch (Word(1)) {
 			case "raw":
 			case "varbinary":
 			case "varchar": {
-				var name = "long " + Keyword(1);
+				var name = "long " + Word(1);
 				tokenIndex += 2;
 				return new QualifiedName(name);
 			}
 			}
 			break;
 		case "time":
-			switch (Keyword(1)) {
+			switch (Word(1)) {
 			case "with":
-				switch (Keyword(2)) {
+				switch (Word(2)) {
 				case "timezone":
 					tokenIndex += 3;
 					return new QualifiedName("time with timezone");
@@ -136,9 +136,9 @@ public sealed class Parser {
 			}
 			break;
 		case "timestamp":
-			switch (Keyword(1)) {
+			switch (Word(1)) {
 			case "with":
-				switch (Keyword(2)) {
+				switch (Word(2)) {
 				case "timezone":
 					tokenIndex += 3;
 					return new QualifiedName("timestamp with timezone");
@@ -147,11 +147,11 @@ public sealed class Parser {
 			}
 			break;
 		case "interval":
-			switch (Keyword(1)) {
+			switch (Word(1)) {
 			case "day":
-				switch (Keyword(2)) {
+				switch (Word(2)) {
 				case "to":
-					switch (Keyword(3)) {
+					switch (Word(3)) {
 					case "second":
 						tokenIndex += 4;
 						return new QualifiedName("interval day to second");
@@ -160,9 +160,9 @@ public sealed class Parser {
 				}
 				break;
 			case "year":
-				switch (Keyword(2)) {
+				switch (Word(2)) {
 				case "to":
-					switch (Keyword(3)) {
+					switch (Word(3)) {
 					case "month":
 						tokenIndex += 4;
 						return new QualifiedName("interval year to month");
@@ -211,9 +211,9 @@ public sealed class Parser {
 				table.Columns.Add(column);
 				return;
 			}
-			switch (Keyword()) {
+			switch (Word()) {
 			case "primary":
-				switch (Keyword(1)) {
+				switch (Word(1)) {
 				case "key": {
 					token = tokens[tokenIndex];
 					var location = new Location(file, text, token.Start);
@@ -229,7 +229,7 @@ public sealed class Parser {
 				tokenIndex++;
 				continue;
 			case "not":
-				switch (Keyword(1)) {
+				switch (Word(1)) {
 				case "null":
 					tokenIndex += 2;
 					column.Nullable = false;
@@ -306,7 +306,7 @@ public sealed class Parser {
 		return false;
 	}
 
-	string? Keyword(int i = 0) {
+	string? Word(int i = 0) {
 		var token = tokens[tokenIndex + i];
 		if (token.Type != kWord)
 			return null;
@@ -413,7 +413,7 @@ public sealed class Parser {
 					SingleQuote();
 					continue;
 				}
-				Word();
+				LexWord();
 				continue;
 			case 'A':
 			case 'B':
@@ -467,7 +467,7 @@ public sealed class Parser {
 			case 'x':
 			case 'y':
 			case 'z':
-				Word();
+				LexWord();
 				continue;
 			case '0':
 			case '1':
@@ -479,18 +479,18 @@ public sealed class Parser {
 			case '7':
 			case '8':
 			case '9':
-				Number();
+				LexNumber();
 				continue;
 			case '.':
 				if (char.IsDigit(text[i])) {
-					Number();
+					LexNumber();
 					continue;
 				}
 				break;
 			case '$':
 				if (char.IsDigit(text[i])) {
 					textIndex = i;
-					Number();
+					LexNumber();
 					continue;
 				}
 				throw Error("stray " + (char)k);
@@ -510,13 +510,13 @@ public sealed class Parser {
 				// Common letters are handled in the switch for speed
 				// but there are other letters in Unicode
 				if (char.IsLetter((char)k)) {
-					Word();
+					LexWord();
 					continue;
 				}
 
 				// Likewise digits
 				if (char.IsDigit((char)k)) {
-					Word();
+					LexWord();
 					continue;
 				}
 
@@ -654,7 +654,7 @@ public sealed class Parser {
 		throw Error("unclosed \"");
 	}
 
-	void Word() {
+	void LexWord() {
 		Debug.Assert(IsWordPart(text[textIndex]));
 		var i = textIndex;
 		do
@@ -664,7 +664,7 @@ public sealed class Parser {
 		textIndex = i;
 	}
 
-	void Number() {
+	void LexNumber() {
 		Debug.Assert(char.IsDigit(text[textIndex]) || text[textIndex] == '.');
 		var i = textIndex;
 		while (IsWordPart(text[i]))
