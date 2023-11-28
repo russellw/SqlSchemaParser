@@ -106,7 +106,7 @@ public class UnitTest1 {
 		Assert.Single(table.Columns);
 		var column = table.Columns[0];
 		Assert.Equal("column1", column.Name);
-		// Assert.Equal(new DataType("int"), column.DataType);
+		Assert.Equal(new DataType("int"), column.DataType);
 	}
 
 	static Schema Parse(string text) {
