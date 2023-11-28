@@ -107,6 +107,14 @@ public class UnitTest1 {
 		var column = table.Columns[0];
 		Assert.Equal("column1", column.Name);
 		Assert.Equal(new DataType("int"), column.DataType);
+
+		schema = Parse("create table table1(column1 int,column2 int)");
+		Assert.Empty(schema.Ignored);
+		Assert.Single(schema.Tables);
+		table = schema.Tables[0];
+		Assert.Single(table.Name.Names);
+		Assert.Equal("table1", table.Name.Names[0]);
+		Assert.Equal(2, table.Columns.Count);
 	}
 
 	static Schema Parse(string text) {
