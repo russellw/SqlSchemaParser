@@ -2,9 +2,15 @@ using SqlSchemaParser;
 
 class Program {
 	static void Main(string[] args) {
-		var schema = new Schema();
-		foreach (var file in args)
+		foreach (var file in args) {
+			var schema = new Schema();
 			Parser.Parse(file, File.ReadAllText(file), schema);
-		Console.Write(schema.IgnoredString());
+			var outDir = "\\t";
+			if (!Directory.Exists(outDir))
+				outDir = Path.GetTempPath();
+			var outFile = Path.Combine(outDir, Path.GetFileNameWithoutExtension(file) + "-ignored.sql");
+			File.WriteAllText(outFile, schema.IgnoredString());
+			Console.WriteLine(outFile);
+		}
 	}
 }
