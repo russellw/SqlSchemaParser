@@ -8,9 +8,12 @@ public sealed class UnaryExpression: Expression {
 		Operand = operand;
 	}
 
-	public override bool Equals(object? b0) {
-		if (b0 is UnaryExpression b)
-			return Op == b.Op && Operand.Equals(b.Operand);
-		return false;
+	public override bool Equals(object? obj) {
+		return obj is UnaryExpression expression && Op == expression.Op &&
+			   EqualityComparer<Expression>.Default.Equals(Operand, expression.Operand);
+	}
+
+	public override int GetHashCode() {
+		return HashCode.Combine(Op, Operand);
 	}
 }

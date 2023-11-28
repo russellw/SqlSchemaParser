@@ -9,9 +9,13 @@ public sealed class BinaryExpression: Expression {
 		Right = right;
 	}
 
-	public override bool Equals(object? b0) {
-		if (b0 is BinaryExpression b)
-			return Op == b.Op && Left.Equals(b.Left) && Right.Equals(b.Right);
-		return false;
+	public override bool Equals(object? obj) {
+		return obj is BinaryExpression expression && Op == expression.Op &&
+			   EqualityComparer<Expression>.Default.Equals(Left, expression.Left) &&
+			   EqualityComparer<Expression>.Default.Equals(Right, expression.Right);
+	}
+
+	public override int GetHashCode() {
+		return HashCode.Combine(Op, Left, Right);
 	}
 }
