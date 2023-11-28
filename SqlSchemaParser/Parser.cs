@@ -45,7 +45,7 @@ public sealed class Parser {
 							a.Columns.Add(column);
 					} while (Eat(','));
 					Expect(')');
-					EndOfStatement();
+					EndStatement();
 					schema.Tables.Add(a);
 					continue;
 				}
@@ -69,21 +69,9 @@ public sealed class Parser {
 		}
 	}
 
-	void EndOfStatement() {
-		for (;;) {
-			var token = tokens[tokenIndex];
-			switch (token.Type) {
-			case -1:
-				return;
-			case ';':
-				tokenIndex++;
-				Eat("go");
-				return;
-			}
-			if (Eat("go"))
-				return;
-			Ignore();
-		}
+	void EndStatement() {
+		Eat(';');
+		Eat("go");
 	}
 
 	void Expect(char k) {
