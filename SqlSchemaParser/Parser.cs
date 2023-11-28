@@ -728,12 +728,17 @@ public sealed class Parser {
 	// Error functions return exception objects instead of throwing immediately
 	// so 'throw Error(...)' can mark the end of a case block
 	Exception Error(string message) {
-		var i = textIndex;
-		if (tokenIndex >= 0) {
+		if (tokenIndex < 0) {
+			var location = new Location(file, text, textIndex);
+			message = $"{location}: {message}";
+		} else {
 			var token = tokens[tokenIndex];
-			i = token.Start;
+			var s = text[token.Start..token.End];
+			if (token.Type == -1)
+				s = "EOF";
+			var location = new Location(file, text, token.Start);
+			message = $"{location}: {s}: {message}";
 		}
-		var location = new Location(file, text, i);
-		return new SqlError($"{location}: {message}");
+		return new SqlError(message);
 	}
 }
