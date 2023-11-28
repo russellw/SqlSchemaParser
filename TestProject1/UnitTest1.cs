@@ -115,6 +115,20 @@ public class UnitTest1 {
 		Assert.Single(table.Name.Names);
 		Assert.Equal("table1", table.Name.Names[0]);
 		Assert.Equal(2, table.Columns.Count);
+
+		schema = Parse("create table table1(column1 int(10,5)) with cream and sugar");
+		Assert.NotEmpty(schema.Ignored);
+		Assert.Single(schema.Tables);
+		table = schema.Tables[0];
+		Assert.Single(table.Name.Names);
+		Assert.Equal("table1", table.Name.Names[0]);
+		Assert.Single(table.Columns);
+		column = table.Columns[0];
+		Assert.Equal("column1", column.Name);
+		var dataType = new DataType("int");
+		dataType.Size = 10;
+		dataType.Scale = 5;
+		Assert.Equal(dataType, column.DataType);
 	}
 
 	static Schema Parse(string text) {
