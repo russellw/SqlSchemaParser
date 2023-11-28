@@ -5,6 +5,6 @@ class Program {
 		var schema = new Schema();
 		foreach (var file in args)
 			Parser.Parse(file, File.ReadAllText(file), schema);
-		Console.WriteLine(schema.IgnoredString());
+		Console.Write(schema.IgnoredString());
 	}
 }

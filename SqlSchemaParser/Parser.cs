@@ -108,6 +108,16 @@ public sealed class Parser {
 			case ')':
 				return a;
 			}
+			switch (Keyword()) {
+			case "not":
+				switch (Keyword(1)) {
+				case "null":
+					tokenIndex += 2;
+					a.Nullable = false;
+					continue;
+				}
+				break;
+			}
 			Ignore();
 		}
 	}
