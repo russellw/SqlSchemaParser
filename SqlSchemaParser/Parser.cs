@@ -299,7 +299,7 @@ public sealed class Parser {
 
 	bool Eat(string s) {
 		var token = tokens[tokenIndex];
-		if (token.Type == kWord && string.Equals(token.Value, s, StringComparison.OrdinalIgnoreCase)) {
+		if (token.Type == kWord && token.Value == s) {
 			tokenIndex++;
 			return true;
 		}
