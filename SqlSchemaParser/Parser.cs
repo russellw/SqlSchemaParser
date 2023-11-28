@@ -234,7 +234,7 @@ public sealed class Parser {
 		// Might be a table constraint instead of a column
 		switch (Word()) {
 		case "primary":
-			table.PrimaryKey = Key();
+			table.AddPrimaryKey(Key());
 			return;
 		case "unique":
 			table.UniqueKeys.Add(Key());
@@ -262,7 +262,7 @@ public sealed class Parser {
 					tokenIndex += 2;
 					var key = new Key(location);
 					key.Add(column);
-					table.PrimaryKey = key;
+					table.AddPrimaryKey(key);
 					continue;
 				}
 				}
