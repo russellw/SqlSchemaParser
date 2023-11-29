@@ -33,4 +33,10 @@ public sealed class Schema {
 		if (!TableMap.TryAdd(table.Name, table))
 			throw new SqlError($"{location}: {table.Name} already exists");
 	}
+
+	public Table GetTable(Location location, string name) {
+		if (TableMap.TryGetValue(name, out Table? table))
+			return table;
+		throw new SqlError($"{location}: {name} not found");
+	}
 }

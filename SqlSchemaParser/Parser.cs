@@ -18,8 +18,11 @@ public sealed class Parser {
 
 	readonly string file;
 	readonly string text;
+	readonly Schema schema;
+
 	int textIndex;
 	readonly List<Token> tokens = new();
+
 	int tokenIndex = -1;
 	readonly List<int> ignored = new();
 
@@ -28,6 +31,7 @@ public sealed class Parser {
 			text += '\n';
 		this.file = file;
 		this.text = text;
+		this.schema = schema;
 		Lex();
 		Debug.Assert(textIndex == text.Length);
 		tokenIndex = 0;
@@ -47,7 +51,7 @@ public sealed class Parser {
 					while (!Eat('('))
 						Ignore();
 					do
-						Column(table);
+						CreateColumn(table);
 					while (Eat(','));
 					Expect(')');
 					EndStatement();
@@ -248,15 +252,16 @@ public sealed class Parser {
 		Expect('(');
 		var key = new ForeignKey();
 		do
-			key.Columns.Add(GetColumn(table));
+			key.Columns.Add(Column(table));
 		while (Eat(','));
 		Expect(')');
 
 		// References
 		Expect("references");
+		var refTable = Table();
 		Expect('(');
 		do
-			key.Columns.Add(GetColumn(table));
+			key.Columns.Add(Column(refTable));
 		while (Eat(','));
 		Expect(')');
 		return key;
@@ -278,19 +283,25 @@ public sealed class Parser {
 		Expect('(');
 		var key = new Key();
 		do
-			key.Add(GetColumn(table));
+			key.Add(Column(table));
 		while (Eat(','));
 		Expect(')');
 		return key;
 	}
 
-	Column GetColumn(Table table) {
+	Column Column(Table table) {
 		var token = tokens[tokenIndex];
 		var location = new Location(file, text, token.Start);
 		return table.GetColumn(location, Name());
 	}
 
-	void Column(Table table) {
+	Table Table() {
+		var token = tokens[tokenIndex];
+		var location = new Location(file, text, token.Start);
+		return schema.GetTable(location, Name());
+	}
+
+	void CreateColumn(Table table) {
 		var token = tokens[tokenIndex];
 		var location = new Location(file, text, token.Start);
 
