@@ -229,9 +229,7 @@ public sealed class Parser {
 			throw Error("expected key");
 		}
 		Expect('(');
-		var token = tokens[tokenIndex];
-		var location = new Location(file, text, token.Start);
-		var key = new Key(location);
+		var key = new Key();
 		do
 			key.Add(GetColumn(table));
 		while (Eat(','));
@@ -246,13 +244,16 @@ public sealed class Parser {
 	}
 
 	void Column(Table table) {
+		var token = tokens[tokenIndex];
+		var location = new Location(file, text, token.Start);
+
 		// Might be a table constraint instead of a column
 		switch (Word()) {
 		case "foreign":
 			table.ForeignKeys.Add(ForeignKey(table));
 			return;
 		case "primary":
-			table.AddPrimaryKey(Key(table));
+			table.AddPrimaryKey(location, Key(table));
 			return;
 		case "unique":
 			table.UniqueKeys.Add(Key(table));
@@ -260,8 +261,6 @@ public sealed class Parser {
 		}
 
 		// This is a column
-		var token = tokens[tokenIndex];
-		var location = new Location(file, text, token.Start);
 		var column = new Column(Name(), DataType());
 
 		// Search the postscript for column constraints
@@ -280,9 +279,9 @@ public sealed class Parser {
 					token = tokens[tokenIndex];
 					location = new Location(file, text, token.Start);
 					tokenIndex += 2;
-					var key = new Key(location);
+					var key = new Key();
 					key.Add(column);
-					table.AddPrimaryKey(key);
+					table.AddPrimaryKey(location, key);
 					continue;
 				}
 				}

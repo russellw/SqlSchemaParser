@@ -32,9 +32,9 @@ public sealed class Table {
 			throw new SqlError($"{location}: {Name}.{column.Name} already exists");
 	}
 
-	public void AddPrimaryKey(Key key) {
+	public void AddPrimaryKey(Location location, Key key) {
 		if (PrimaryKey != null)
-			throw new SqlError($"{key.Location}: {Name} already has a primary key");
+			throw new SqlError($"{location}: {Name} already has a primary key");
 		PrimaryKey = key;
 	}
 
