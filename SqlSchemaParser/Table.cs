@@ -13,11 +13,7 @@ public sealed class Table {
 		var sb = new StringBuilder("CREATE TABLE ");
 		sb.Append(Name);
 		sb.Append('(');
-		var separator = new Separator(sb);
-		foreach (var column in Columns) {
-			separator.Write();
-			sb.Append(column);
-		}
+		sb.Append(string.Join(',', Columns));
 		sb.Append(')');
 		return sb.ToString();
 	}

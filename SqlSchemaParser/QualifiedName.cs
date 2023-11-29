@@ -12,13 +12,7 @@ public sealed class QualifiedName: Expression {
 	}
 
 	public override string ToString() {
-		var sb = new StringBuilder();
-		var separator = new Separator(sb, '.');
-		foreach (var name in Names) {
-			separator.Write();
-			sb.Append(name);
-		}
-		return sb.ToString();
+		return string.Join('.', Names);
 	}
 
 	public static bool operator ==(QualifiedName a, string b) {
