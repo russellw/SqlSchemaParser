@@ -269,10 +269,10 @@ public sealed class Parser {
 
 		// References
 		Expect("references");
-		var refTable = Table();
+		key.RefTable = Table();
 		Expect('(');
 		do
-			key.Columns.Add(Column(refTable));
+			key.RefColumns.Add(Column(key.RefTable));
 		while (Eat(','));
 		Expect(')');
 

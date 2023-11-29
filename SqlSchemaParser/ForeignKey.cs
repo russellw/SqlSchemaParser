@@ -9,7 +9,13 @@ public sealed class ForeignKey {
 	public Action OnUpdate = Action.NoAction;
 
 	public string Sql() {
-		var sb = new StringBuilder("FOREIGN KEY");
+		var sb = new StringBuilder("FOREIGN KEY(");
+		sb.Append(string.Join(',', Columns));
+		sb.Append(") REFERENCES ");
+		sb.Append(RefTable);
+		sb.Append('(');
+		sb.Append(string.Join(',', RefColumns));
+		sb.Append(')');
 		return sb.ToString();
 	}
 }

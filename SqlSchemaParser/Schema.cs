@@ -25,6 +25,14 @@ public sealed class Schema {
 			sb.Append(table.Sql());
 			sb.Append(";\n");
 		}
+		foreach (var table in Tables)
+			foreach (var key in table.ForeignKeys) {
+				sb.Append("ALTER TABLE ");
+				sb.Append(table);
+				sb.Append(" ADD ");
+				sb.Append(key.Sql());
+				sb.Append(";\n");
+			}
 		return sb.ToString();
 	}
 
