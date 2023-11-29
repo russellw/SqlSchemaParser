@@ -205,6 +205,7 @@ public sealed class Parser {
 		var a = new DataType(DataTypeName());
 		if (Eat('(')) {
 			if (a.TypeName == "enum") {
+				a.Values = new();
 				do
 					a.Values.Add(StringLiteral());
 				while (Eat(','));

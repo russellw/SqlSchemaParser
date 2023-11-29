@@ -5,7 +5,7 @@ public struct DataType {
 	public string TypeName;
 	public int Size = -1;
 	public int Scale = -1;
-	public List<string> Values = new();
+	public List<string>? Values;
 
 	public DataType(string typeName) {
 		TypeName = typeName;
@@ -20,6 +20,15 @@ public struct DataType {
 			if (Scale >= 0) {
 				sb.Append(',');
 				sb.Append(Scale);
+			}
+			sb.Append(')');
+		}
+		if (Values != null) {
+			sb.Append('(');
+			var separator = new Separator(sb);
+			foreach (var value in Values) {
+				separator.Write();
+				sb.Append($"'{value}'");
 			}
 			sb.Append(')');
 		}
