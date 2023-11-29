@@ -103,7 +103,7 @@ public sealed class Parser {
 			throw Error("expected " + s.ToUpperInvariant());
 	}
 
-	QualifiedName DataTypeName() {
+	string DataTypeName() {
 		switch (Word()) {
 		case "character":
 		case "char":
@@ -112,12 +112,12 @@ public sealed class Parser {
 				switch (Word(2)) {
 				case "object":
 					tokenIndex += 3;
-					return new QualifiedName("clob");
+					return "clob";
 				}
 				break;
 			case "varying":
 				tokenIndex += 2;
-				return new QualifiedName("varchar");
+				return "varchar";
 			}
 			break;
 		case "binary":
@@ -126,7 +126,7 @@ public sealed class Parser {
 				switch (Word(2)) {
 				case "object":
 					tokenIndex += 3;
-					return new QualifiedName("blob");
+					return "blob";
 				}
 				break;
 			}
@@ -135,7 +135,7 @@ public sealed class Parser {
 			switch (Word(1)) {
 			case "precision":
 				tokenIndex += 2;
-				return new QualifiedName("double");
+				return "double";
 			}
 			break;
 		case "long":
@@ -145,7 +145,7 @@ public sealed class Parser {
 			case "varchar": {
 				var name = "long " + Word(1);
 				tokenIndex += 2;
-				return new QualifiedName(name);
+				return name;
 			}
 			}
 			break;
@@ -155,7 +155,7 @@ public sealed class Parser {
 				switch (Word(2)) {
 				case "timezone":
 					tokenIndex += 3;
-					return new QualifiedName("time with timezone");
+					return "time with timezone";
 				}
 				break;
 			}
@@ -166,7 +166,7 @@ public sealed class Parser {
 				switch (Word(2)) {
 				case "timezone":
 					tokenIndex += 3;
-					return new QualifiedName("timestamp with timezone");
+					return "timestamp with timezone";
 				}
 				break;
 			}
@@ -179,7 +179,7 @@ public sealed class Parser {
 					switch (Word(3)) {
 					case "second":
 						tokenIndex += 4;
-						return new QualifiedName("interval day to second");
+						return "interval day to second";
 					}
 					break;
 				}
@@ -190,7 +190,7 @@ public sealed class Parser {
 					switch (Word(3)) {
 					case "month":
 						tokenIndex += 4;
-						return new QualifiedName("interval year to month");
+						return "interval year to month";
 					}
 					break;
 				}
@@ -198,7 +198,7 @@ public sealed class Parser {
 			}
 			break;
 		}
-		return QualifiedName();
+		return Name();
 	}
 
 	DataType DataType() {
