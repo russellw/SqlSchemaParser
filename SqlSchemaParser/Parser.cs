@@ -43,11 +43,7 @@ public sealed class Parser {
 				switch (Word(1)) {
 				case "table": {
 					tokenIndex += 2;
-					string name;
-					do
-						name = Name();
-					while (Eat('.'));
-					var table = new Table(name);
+					var table = new Table(UnqualifiedName());
 					schema.Add(location, table);
 					while (!Eat('('))
 						Ignore();
@@ -77,6 +73,14 @@ public sealed class Parser {
 			var span = new Span(location, end);
 			schema.Ignored.Add(span);
 		}
+	}
+
+	string UnqualifiedName() {
+		string name;
+		do
+			name = Name();
+		while (Eat('.'));
+		return name;
 	}
 
 	void EndElement() {
@@ -329,11 +333,7 @@ public sealed class Parser {
 	Table Table() {
 		var token = tokens[tokenIndex];
 		var location = new Location(file, text, token.Start);
-		string name;
-		do
-			name = Name();
-		while (Eat('.'));
-		return schema.GetTable(location, name);
+		return schema.GetTable(location, UnqualifiedName());
 	}
 
 	void TableConstraint(Table table) {
@@ -353,10 +353,7 @@ public sealed class Parser {
 	}
 
 	void ColumnOrTableConstraint(Table table) {
-		var token = tokens[tokenIndex];
-		var location = new Location(file, text, token.Start);
-
-		// Might be a table constraint instead of a column
+		// Might be a table constraint
 		if (Eat("constraint")) {
 			Name();
 			TableConstraint(table);
@@ -373,6 +370,8 @@ public sealed class Parser {
 		}
 
 		// This is a column
+		var token = tokens[tokenIndex];
+		var location = new Location(file, text, token.Start);
 		var column = new Column(Name(), DataType());
 
 		// Search the postscript for column constraints
