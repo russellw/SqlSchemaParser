@@ -23,7 +23,7 @@ public sealed class Schema {
 		var sb = new StringBuilder();
 		foreach (var table in Tables) {
 			sb.Append(table);
-			sb.Append('\n');
+			sb.Append(";\n");
 		}
 		return sb.ToString();
 	}
