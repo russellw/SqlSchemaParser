@@ -15,8 +15,17 @@ class Program {
 			Console.WriteLine(outFile);
 
 			outFile = Path.Combine(outDir, Path.GetFileNameWithoutExtension(file) + "-roundtrip.sql");
-			File.WriteAllText(outFile, schema.Sql());
+			var roundtripSql = schema.Sql();
+			File.WriteAllText(outFile, roundtripSql);
 			Console.WriteLine(outFile);
+
+			var roundtripSchema = new Schema();
+			Parser.Parse(outFile, roundtripSql, roundtripSchema);
+			if (roundtripSql != roundtripSchema.Sql()) {
+				Console.WriteLine(roundtripSql);
+				Console.Write(roundtripSchema.Sql());
+				Environment.Exit(1);
+			}
 		}
 	}
 }
