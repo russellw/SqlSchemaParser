@@ -13,13 +13,13 @@ public sealed class Table {
 		var sb = new StringBuilder("CREATE TABLE ");
 		sb.Append(this);
 		sb.Append('(');
-		sb.Append(string.Join(',', Columns.Select(column => column.Sql())));
+		sb.Append(string.Join(", ", Columns.Select(column => column.Sql())));
 		if (PrimaryKey != null) {
-			sb.Append(",PRIMARY KEY");
+			sb.Append(", PRIMARY KEY");
 			sb.Append(PrimaryKey.Sql());
 		}
 		foreach (var key in UniqueKeys) {
-			sb.Append(",UNIQUE");
+			sb.Append(", UNIQUE");
 			sb.Append(key.Sql());
 		}
 		sb.Append(')');
