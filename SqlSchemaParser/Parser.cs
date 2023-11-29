@@ -206,7 +206,7 @@ public sealed class Parser {
 		return int.Parse(token.Value!, System.Globalization.CultureInfo.InvariantCulture);
 	}
 
-	Key Key() {
+	Key Key(Table table) {
 		switch (Word()) {
 		case "primary":
 			tokenIndex++;
@@ -224,20 +224,26 @@ public sealed class Parser {
 		var location = new Location(file, text, token.Start);
 		var key = new Key(location);
 		do
-			key.ColumnNames.Add(Name());
+			key.Add(GetColumn(table));
 		while (Eat(','));
 		Expect(')');
 		return key;
+	}
+
+	Column GetColumn(Table table) {
+		var token = tokens[tokenIndex];
+		var location = new Location(file, text, token.Start);
+		return table.GetColumn(location, Name());
 	}
 
 	void Column(Table table) {
 		// Might be a table constraint instead of a column
 		switch (Word()) {
 		case "primary":
-			table.AddPrimaryKey(Key());
+			table.AddPrimaryKey(Key(table));
 			return;
 		case "unique":
-			table.UniqueKeys.Add(Key());
+			table.UniqueKeys.Add(Key(table));
 			return;
 		}
 
@@ -250,7 +256,7 @@ public sealed class Parser {
 			switch (token.Type) {
 			case ',':
 			case ')':
-				table.Columns.Add(column);
+				table.Add(column);
 				return;
 			}
 			switch (Word()) {
