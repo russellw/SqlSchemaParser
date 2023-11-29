@@ -49,10 +49,10 @@ public sealed class Parser {
 						Ignore();
 					do {
 						ColumnOrTableConstraint(table);
-						EndElement();
+						ToElementEnd();
 					} while (Eat(','));
 					Expect(')');
-					EndStatement();
+					StatementEnd();
 					continue;
 				}
 				}
@@ -61,9 +61,22 @@ public sealed class Parser {
 				switch (Word(1)) {
 				case "table": {
 					tokenIndex += 2;
+					var ifExists = false;
+					if (Word() == "if" && Word(1) == "exists") {
+						tokenIndex += 2;
+						ifExists = true;
+					}
+					Eat("only");
 					var table = schema.GetTable(location, UnqualifiedName());
-					EndStatement();
-					continue;
+					switch (Word()) {
+					case "add": {
+						tokenIndex++;
+						ColumnOrTableConstraint(table);
+						StatementEnd();
+						continue;
+					}
+					}
+					break;
 				}
 				}
 				break;
@@ -85,6 +98,17 @@ public sealed class Parser {
 		}
 	}
 
+	bool IsElementEnd() {
+		var token = tokens[tokenIndex];
+		switch (token.Type) {
+		case ')':
+		case ',':
+		case ';':
+			return true;
+		}
+		return false;
+	}
+
 	string UnqualifiedName() {
 		string name;
 		do
@@ -93,12 +117,12 @@ public sealed class Parser {
 		return name;
 	}
 
-	void EndElement() {
-		while (tokens[tokenIndex].Type != ',' && tokens[tokenIndex].Type != ')')
+	void ToElementEnd() {
+		while (!IsElementEnd())
 			Ignore();
 	}
 
-	void EndStatement() {
+	void StatementEnd() {
 		Eat(';');
 		Eat("go");
 	}
@@ -288,9 +312,7 @@ public sealed class Parser {
 
 		// Search the postscript for actions
 		for (;;) {
-			switch (tokens[tokenIndex].Type) {
-			case ',':
-			case ')':
+			if (IsElementEnd()) {
 				table.ForeignKeys.Add(key);
 				return;
 			}
@@ -387,9 +409,7 @@ public sealed class Parser {
 
 		// Search the postscript for column constraints
 		for (;;) {
-			switch (tokens[tokenIndex].Type) {
-			case ',':
-			case ')':
+			if (IsElementEnd()) {
 				table.Add(location, column);
 				return;
 			}
