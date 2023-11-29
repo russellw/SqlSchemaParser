@@ -1,7 +1,7 @@
 ﻿namespace SqlSchemaParser;
 public enum Action {
-	NoAction,
-	Cascade,
-	SetNull,
-	SetDefault,
+	NO_ACTION,
+	CASCADE,
+	SET_NULL,
+	SET_DEFAULT,
 }

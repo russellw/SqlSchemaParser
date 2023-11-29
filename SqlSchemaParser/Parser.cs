@@ -231,23 +231,23 @@ public sealed class Parser {
 		switch (Word()) {
 		case "cascade":
 			tokenIndex++;
-			return Action.Cascade;
+			return Action.CASCADE;
 		case "no":
 			tokenIndex++;
 			Expect("action");
-			return Action.NoAction;
+			return Action.NO_ACTION;
 		case "restrict":
 			tokenIndex++;
-			return Action.NoAction;
+			return Action.NO_ACTION;
 		case "set":
 			tokenIndex++;
 			switch (Word()) {
 			case "null":
 				tokenIndex++;
-				return Action.SetNull;
+				return Action.SET_NULL;
 			case "default":
 				tokenIndex++;
-				return Action.SetDefault;
+				return Action.SET_DEFAULT;
 			}
 			throw Error("expected replacement value");
 		}
