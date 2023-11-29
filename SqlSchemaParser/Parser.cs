@@ -48,14 +48,15 @@ public sealed class Parser {
 						name = Name();
 					while (Eat('.'));
 					var table = new Table(name);
+					schema.Add(location, table);
 					while (!Eat('('))
 						Ignore();
-					do
-						CreateColumn(table);
-					while (Eat(','));
+					do {
+						ColumnOrTableConstraint(table);
+						EndElement();
+					} while (Eat(','));
 					Expect(')');
 					EndStatement();
-					schema.Add(location, table);
 					continue;
 				}
 				}
@@ -76,6 +77,11 @@ public sealed class Parser {
 			var span = new Span(location, end);
 			schema.Ignored.Add(span);
 		}
+	}
+
+	void EndElement() {
+		while (tokens[tokenIndex].Type != ',' && tokens[tokenIndex].Type != ')')
+			Ignore();
 	}
 
 	void EndStatement() {
@@ -265,7 +271,7 @@ public sealed class Parser {
 		while (Eat(','));
 		Expect(')');
 
-		// Search the postscript for column constraints
+		// Search the postscript for actions
 		for (;;) {
 			switch (tokens[tokenIndex].Type) {
 			case ',':
@@ -304,7 +310,8 @@ public sealed class Parser {
 		default:
 			throw Error("expected key");
 		}
-		Expect('(');
+		while (!Eat('('))
+			Ignore();
 		var key = new Key();
 		do
 			key.Add(Column(table));
@@ -322,14 +329,16 @@ public sealed class Parser {
 	Table Table() {
 		var token = tokens[tokenIndex];
 		var location = new Location(file, text, token.Start);
-		return schema.GetTable(location, Name());
+		string name;
+		do
+			name = Name();
+		while (Eat('.'));
+		return schema.GetTable(location, name);
 	}
 
-	void CreateColumn(Table table) {
+	void TableConstraint(Table table) {
 		var token = tokens[tokenIndex];
 		var location = new Location(file, text, token.Start);
-
-		// Might be a table constraint instead of a column
 		switch (Word()) {
 		case "foreign":
 			ForeignKey(table);
@@ -339,6 +348,27 @@ public sealed class Parser {
 			return;
 		case "unique":
 			table.UniqueKeys.Add(Key(table));
+			return;
+		}
+	}
+
+	void ColumnOrTableConstraint(Table table) {
+		var token = tokens[tokenIndex];
+		var location = new Location(file, text, token.Start);
+
+		// Might be a table constraint instead of a column
+		if (Eat("constraint")) {
+			Name();
+			TableConstraint(table);
+			return;
+		}
+		switch (Word()) {
+		case "foreign":
+		case "primary":
+		case "unique":
+		case "check":
+		case "exclude":
+			TableConstraint(table);
 			return;
 		}
 
