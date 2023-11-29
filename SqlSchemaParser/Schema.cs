@@ -3,6 +3,7 @@
 namespace SqlSchemaParser;
 public sealed class Schema {
 	public List<Table> Tables = new();
+	public Dictionary<string, Table> TableMap = new();
 	public List<Span> Ignored = new();
 
 	public string IgnoredString() {
@@ -25,5 +26,11 @@ public sealed class Schema {
 			sb.Append('\n');
 		}
 		return sb.ToString();
+	}
+
+	public void Add(Location location, Table table) {
+		Tables.Add(table);
+		if (!TableMap.TryAdd(table.Name, table))
+			throw new SqlError($"{location}: {table.Name} already exists");
 	}
 }

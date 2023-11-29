@@ -2,7 +2,7 @@
 
 namespace SqlSchemaParser;
 public sealed class Table {
-	public QualifiedName Name;
+	public string Name;
 	public List<Column> Columns = new();
 	public Dictionary<string, Column> ColumnMap = new();
 	public Key? PrimaryKey;
@@ -22,7 +22,7 @@ public sealed class Table {
 		return sb.ToString();
 	}
 
-	public Table(QualifiedName name) {
+	public Table(string name) {
 		Name = name;
 	}
 

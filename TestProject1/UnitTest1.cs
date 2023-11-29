@@ -113,8 +113,7 @@ public class UnitTest1 {
 		Assert.Empty(schema.Ignored);
 		Assert.Single(schema.Tables);
 		var table = schema.Tables[0];
-		Assert.Single(table.Name.Names);
-		Assert.Equal("table1", table.Name.Names[0]);
+		Assert.Equal("table1", table.Name);
 		Assert.Single(table.Columns);
 		var column = table.Columns[0];
 		Assert.Equal("column1", column.Name);
@@ -124,16 +123,14 @@ public class UnitTest1 {
 		Assert.Empty(schema.Ignored);
 		Assert.Single(schema.Tables);
 		table = schema.Tables[0];
-		Assert.Single(table.Name.Names);
-		Assert.Equal("table1", table.Name.Names[0]);
+		Assert.Equal("table1", table.Name);
 		Assert.Equal(2, table.Columns.Count);
 
 		schema = Parse("create table table1(column1 int(10,5)) with cream and sugar");
 		Assert.NotEmpty(schema.Ignored);
 		Assert.Single(schema.Tables);
 		table = schema.Tables[0];
-		Assert.Single(table.Name.Names);
-		Assert.Equal("table1", table.Name.Names[0]);
+		Assert.Equal("table1", table.Name);
 		Assert.Single(table.Columns);
 		column = table.Columns[0];
 		Assert.Equal("column1", column.Name);

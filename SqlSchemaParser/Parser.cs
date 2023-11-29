@@ -32,12 +32,18 @@ public sealed class Parser {
 		Debug.Assert(textIndex == text.Length);
 		tokenIndex = 0;
 		while (tokens[tokenIndex].Type != -1) {
+			var token = tokens[tokenIndex];
+			var location = new Location(file, text, token.Start);
 			switch (Word()) {
 			case "create":
 				switch (Word(1)) {
 				case "table": {
 					tokenIndex += 2;
-					var table = new Table(QualifiedName());
+					string name;
+					do
+						name = Name();
+					while (Eat('.'));
+					var table = new Table(name);
 					while (!Eat('('))
 						Ignore();
 					do
@@ -45,7 +51,7 @@ public sealed class Parser {
 					while (Eat(','));
 					Expect(')');
 					EndStatement();
-					schema.Tables.Add(table);
+					schema.Add(location, table);
 					continue;
 				}
 				}
@@ -206,12 +212,53 @@ public sealed class Parser {
 		return int.Parse(token.Value!, System.Globalization.CultureInfo.InvariantCulture);
 	}
 
+	Action GetAction() {
+		switch (Word()) {
+		case "cascade":
+			tokenIndex++;
+			return Action.Cascade;
+		case "no":
+			tokenIndex++;
+			Expect("action");
+			return Action.NoAction;
+		case "restrict":
+			tokenIndex++;
+			return Action.NoAction;
+		case "set":
+			tokenIndex++;
+			switch (Word()) {
+			case "null":
+				tokenIndex++;
+				return Action.SetNull;
+			case "default":
+				tokenIndex++;
+				return Action.SetDefault;
+			}
+			throw Error("expected replacement value");
+		}
+		throw Error("expected action");
+	}
+
 	ForeignKey ForeignKey(Table table) {
 		Debug.Assert(Word() == "foreign");
 		tokenIndex++;
 		Expect("key");
+
+		// Columns
 		Expect('(');
 		var key = new ForeignKey();
+		do
+			key.Columns.Add(GetColumn(table));
+		while (Eat(','));
+		Expect(')');
+
+		// References
+		Expect("references");
+		Expect('(');
+		do
+			key.Columns.Add(GetColumn(table));
+		while (Eat(','));
+		Expect(')');
 		return key;
 	}
 
@@ -265,8 +312,7 @@ public sealed class Parser {
 
 		// Search the postscript for column constraints
 		for (;;) {
-			token = tokens[tokenIndex];
-			switch (token.Type) {
+			switch (tokens[tokenIndex].Type) {
 			case ',':
 			case ')':
 				table.Add(location, column);
@@ -276,8 +322,6 @@ public sealed class Parser {
 			case "primary":
 				switch (Word(1)) {
 				case "key": {
-					token = tokens[tokenIndex];
-					location = new Location(file, text, token.Start);
 					tokenIndex += 2;
 					var key = new Key();
 					key.Add(column);
