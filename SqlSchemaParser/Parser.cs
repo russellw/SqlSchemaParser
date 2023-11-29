@@ -57,6 +57,16 @@ public sealed class Parser {
 				}
 				}
 				break;
+			case "alter":
+				switch (Word(1)) {
+				case "table": {
+					tokenIndex += 2;
+					var table = schema.GetTable(location, UnqualifiedName());
+					EndStatement();
+					continue;
+				}
+				}
+				break;
 			}
 			Ignore();
 		}
@@ -781,7 +791,7 @@ public sealed class Parser {
 				case ']':
 					break;
 				default:
-					tokens.Add(new Token(textIndex, i, kQuotedName, sb.ToString()));
+					tokens.Add(new Token(textIndex, i, kQuotedName, sb.ToString().ToLowerInvariant()));
 					textIndex = i;
 					return;
 				}

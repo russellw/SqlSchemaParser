@@ -39,7 +39,7 @@ public sealed class Schema {
 	public void Add(Location location, Table table) {
 		Tables.Add(table);
 		if (!TableMap.TryAdd(table.Name, table))
-			throw new SqlError($"{location}: {table.Name} already exists");
+			throw new SqlError($"{location}: {table} already exists");
 	}
 
 	public Table GetTable(Location location, string name) {
