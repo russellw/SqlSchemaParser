@@ -7,6 +7,7 @@ public sealed class Table {
 	public Dictionary<string, Column> ColumnMap = new();
 	public Key? PrimaryKey;
 	public List<Key> UniqueKeys = new();
+	public List<ForeignKey> ForeignKeys = new();
 
 	public override string ToString() {
 		var sb = new StringBuilder("CREATE TABLE ");
@@ -25,9 +26,10 @@ public sealed class Table {
 		Name = name;
 	}
 
-	public void Add(Column column) {
+	public void Add(Location location, Column column) {
 		Columns.Add(column);
-		ColumnMap.Add(column.Name, column);
+		if (!ColumnMap.TryAdd(column.Name, column))
+			throw new SqlError($"{location}: {Name}.{column.Name} already exists");
 	}
 
 	public void AddPrimaryKey(Key key) {

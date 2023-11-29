@@ -206,6 +206,15 @@ public sealed class Parser {
 		return int.Parse(token.Value!, System.Globalization.CultureInfo.InvariantCulture);
 	}
 
+	ForeignKey ForeignKey(Table table) {
+		Debug.Assert(Word() == "foreign");
+		tokenIndex++;
+		Expect("key");
+		Expect('(');
+		var key = new ForeignKey();
+		return key;
+	}
+
 	Key Key(Table table) {
 		switch (Word()) {
 		case "primary":
@@ -239,6 +248,9 @@ public sealed class Parser {
 	void Column(Table table) {
 		// Might be a table constraint instead of a column
 		switch (Word()) {
+		case "foreign":
+			table.ForeignKeys.Add(ForeignKey(table));
+			return;
 		case "primary":
 			table.AddPrimaryKey(Key(table));
 			return;
@@ -248,15 +260,17 @@ public sealed class Parser {
 		}
 
 		// This is a column
+		var token = tokens[tokenIndex];
+		var location = new Location(file, text, token.Start);
 		var column = new Column(Name(), DataType());
 
 		// Search the postscript for column constraints
 		for (;;) {
-			var token = tokens[tokenIndex];
+			token = tokens[tokenIndex];
 			switch (token.Type) {
 			case ',':
 			case ')':
-				table.Add(column);
+				table.Add(location, column);
 				return;
 			}
 			switch (Word()) {
@@ -264,7 +278,7 @@ public sealed class Parser {
 				switch (Word(1)) {
 				case "key": {
 					token = tokens[tokenIndex];
-					var location = new Location(file, text, token.Start);
+					location = new Location(file, text, token.Start);
 					tokenIndex += 2;
 					var key = new Key(location);
 					key.Add(column);
