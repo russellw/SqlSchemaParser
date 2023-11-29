@@ -6,9 +6,9 @@ public sealed class Column {
 	public DataType DataType;
 	public bool Nullable = true;
 
-	public override string ToString() {
+	public string Sql() {
 		var sb = new StringBuilder();
-		sb.Append(Name);
+		sb.Append(this);
 		sb.Append(' ');
 		sb.Append(DataType);
 		if (!Nullable)
@@ -19,5 +19,9 @@ public sealed class Column {
 	public Column(string name, DataType dataType) {
 		Name = name;
 		DataType = dataType;
+	}
+
+	public override string ToString() {
+		return Etc.QuoteName(Name);
 	}
 }

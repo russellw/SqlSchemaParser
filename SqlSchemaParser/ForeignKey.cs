@@ -8,7 +8,7 @@ public sealed class ForeignKey {
 	public Action OnDelete = Action.NoAction;
 	public Action OnUpdate = Action.NoAction;
 
-	public override string ToString() {
+	public string Sql() {
 		var sb = new StringBuilder("FOREIGN KEY");
 		return sb.ToString();
 	}

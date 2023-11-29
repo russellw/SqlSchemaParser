@@ -7,7 +7,7 @@ public sealed class Key {
 		Columns.Add(column);
 	}
 
-	public override string ToString() {
-		return $"({string.Join(',',Columns.Select(column=>column.Name))})";
+	public string Sql() {
+		return $"({string.Join(',',Columns)})";
 	}
 }

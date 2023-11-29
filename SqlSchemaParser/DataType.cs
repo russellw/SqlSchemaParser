@@ -25,7 +25,7 @@ public struct DataType {
 		}
 		if (Values != null) {
 			sb.Append('(');
-			sb.Append(string.Join(',', Values.Select(s => $"'{s}'")));
+			sb.Append(string.Join(',', Values.Select(value => Etc.QuoteStringLiteral(value))));
 			sb.Append(')');
 		}
 		return sb.ToString();

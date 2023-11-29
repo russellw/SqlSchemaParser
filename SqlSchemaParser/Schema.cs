@@ -19,10 +19,10 @@ public sealed class Schema {
 		return sb.ToString();
 	}
 
-	public override string ToString() {
+	public string Sql() {
 		var sb = new StringBuilder();
 		foreach (var table in Tables) {
-			sb.Append(table);
+			sb.Append(table.Sql());
 			sb.Append(";\n");
 		}
 		return sb.ToString();

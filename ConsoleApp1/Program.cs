@@ -15,7 +15,7 @@ class Program {
 			Console.WriteLine(outFile);
 
 			outFile = Path.Combine(outDir, Path.GetFileNameWithoutExtension(file) + "-roundtrip.sql");
-			File.WriteAllText(outFile, schema.ToString());
+			File.WriteAllText(outFile, schema.Sql());
 			Console.WriteLine(outFile);
 		}
 	}

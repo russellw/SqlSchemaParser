@@ -104,7 +104,8 @@ public class UnitTest1 {
 	[Fact]
 	public void Column() {
 		var c = new Column("foo", new DataType("varchar"));
-		Assert.Equal("foo varchar", c.ToString());
+		Assert.Equal("\"foo\"", c.ToString());
+		Assert.Equal("\"foo\" varchar", c.Sql());
 	}
 
 	[Fact]
