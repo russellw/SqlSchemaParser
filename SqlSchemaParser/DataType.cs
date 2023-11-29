@@ -25,11 +25,7 @@ public struct DataType {
 		}
 		if (Values != null) {
 			sb.Append('(');
-			var separator = new Separator(sb);
-			foreach (var value in Values) {
-				separator.Write();
-				sb.Append($"'{value}'");
-			}
+			sb.Append(string.Join(",", Values.Select(s => $"'{s}'")));
 			sb.Append(')');
 		}
 		return sb.ToString();
