@@ -243,7 +243,7 @@ public sealed class Parser {
 		throw Error("expected action");
 	}
 
-	ForeignKey ForeignKey(Table table) {
+	void ForeignKey(Table table) {
 		Debug.Assert(Word() == "foreign");
 		tokenIndex++;
 		Expect("key");
@@ -264,7 +264,31 @@ public sealed class Parser {
 			key.Columns.Add(Column(refTable));
 		while (Eat(','));
 		Expect(')');
-		return key;
+
+		// Search the postscript for column constraints
+		for (;;) {
+			switch (tokens[tokenIndex].Type) {
+			case ',':
+			case ')':
+				table.ForeignKeys.Add(key);
+				return;
+			}
+			switch (Word()) {
+			case "on":
+				switch (Word(1)) {
+				case "delete":
+					tokenIndex += 2;
+					key.OnDelete = GetAction();
+					continue;
+				case "update":
+					tokenIndex += 2;
+					key.OnUpdate = GetAction();
+					continue;
+				}
+				break;
+			}
+			Ignore();
+		}
 	}
 
 	Key Key(Table table) {
@@ -308,7 +332,7 @@ public sealed class Parser {
 		// Might be a table constraint instead of a column
 		switch (Word()) {
 		case "foreign":
-			table.ForeignKeys.Add(ForeignKey(table));
+			ForeignKey(table);
 			return;
 		case "primary":
 			table.AddPrimaryKey(location, Key(table));
