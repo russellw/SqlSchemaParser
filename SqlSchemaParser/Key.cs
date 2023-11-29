@@ -6,4 +6,8 @@ public sealed class Key {
 		column.Nullable = false;
 		Columns.Add(column);
 	}
+
+	public override string ToString() {
+		return $"({string.Join(',',Columns.Select(column=>column.Name))})";
+	}
 }

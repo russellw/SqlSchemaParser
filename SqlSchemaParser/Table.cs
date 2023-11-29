@@ -14,6 +14,14 @@ public sealed class Table {
 		sb.Append(Name);
 		sb.Append('(');
 		sb.Append(string.Join(',', Columns));
+		if (PrimaryKey != null) {
+			sb.Append(",PRIMARY KEY");
+			sb.Append(PrimaryKey);
+		}
+		foreach (var key in UniqueKeys) {
+			sb.Append(",UNIQUE");
+			sb.Append(key);
+		}
 		sb.Append(')');
 		return sb.ToString();
 	}
