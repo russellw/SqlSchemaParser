@@ -115,6 +115,7 @@ public sealed class Parser {
 	bool IsStatementEnd() {
 		var token = tokens[tokenIndex];
 		switch (token.Type) {
+		case -1:
 		case ';':
 			return true;
 		case kWord:
