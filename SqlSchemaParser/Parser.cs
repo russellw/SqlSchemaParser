@@ -7,6 +7,8 @@ public sealed class Parser {
 		_ = new Parser(file, text, schema);
 	}
 
+	delegate bool Callback();
+
 	const int kDoublePipe = -2;
 	const int kGreaterEqual = -3;
 	const int kLessEqual = -4;
@@ -48,7 +50,7 @@ public sealed class Parser {
 					while (!Eat('('))
 						Ignore();
 					do {
-						ColumnOrTableConstraint(table);
+						ColumnOrTableConstraint(table, IsElementEnd);
 						ToElementEnd();
 					} while (Eat(','));
 					Expect(')');
@@ -73,7 +75,7 @@ public sealed class Parser {
 					switch (Word()) {
 					case "add": {
 						tokenIndex++;
-						ColumnOrTableConstraint(table);
+						ColumnOrTableConstraint(table, IsStatementEnd);
 						StatementEnd();
 						continue;
 					}
@@ -105,8 +107,24 @@ public sealed class Parser {
 		switch (token.Type) {
 		case ')':
 		case ',':
+			return true;
+		}
+		return false;
+	}
+
+	bool IsStatementEnd() {
+		var token = tokens[tokenIndex];
+		switch (token.Type) {
 		case ';':
 			return true;
+		case kWord:
+			switch (Word()) {
+			case "go":
+			case "create":
+			case "alter":
+				return true;
+			}
+			break;
 		}
 		return false;
 	}
@@ -290,7 +308,7 @@ public sealed class Parser {
 		throw Error("expected action");
 	}
 
-	void ForeignKey(Table table) {
+	void ForeignKey(Table table, Callback isEnd) {
 		Debug.Assert(Word() == "foreign");
 		tokenIndex++;
 		Expect("key");
@@ -317,12 +335,10 @@ public sealed class Parser {
 			key.RefColumns.AddRange(key.RefTable.PrimaryKey.Columns);
 		}
 
+		table.ForeignKeys.Add(key);
+
 		// Search the postscript for actions
-		for (;;) {
-			if (IsElementEnd()) {
-				table.ForeignKeys.Add(key);
-				return;
-			}
+		while (!isEnd()) {
 			switch (Word()) {
 			case "on":
 				switch (Word(1)) {
@@ -376,12 +392,12 @@ public sealed class Parser {
 		return schema.GetTable(location, UnqualifiedName());
 	}
 
-	void TableConstraint(Table table) {
+	void TableConstraint(Table table, Callback isEnd) {
 		var token = tokens[tokenIndex];
 		var location = new Location(file, text, token.Start);
 		switch (Word()) {
 		case "foreign":
-			ForeignKey(table);
+			ForeignKey(table, isEnd);
 			return;
 		case "primary":
 			table.AddPrimaryKey(location, Key(table));
@@ -392,11 +408,11 @@ public sealed class Parser {
 		}
 	}
 
-	void ColumnOrTableConstraint(Table table) {
+	void ColumnOrTableConstraint(Table table, Callback isEnd) {
 		// Might be a table constraint
 		if (Eat("constraint")) {
 			Name();
-			TableConstraint(table);
+			TableConstraint(table, isEnd);
 			return;
 		}
 		switch (Word()) {
@@ -405,7 +421,7 @@ public sealed class Parser {
 		case "unique":
 		case "check":
 		case "exclude":
-			TableConstraint(table);
+			TableConstraint(table, isEnd);
 			return;
 		}
 
@@ -413,13 +429,10 @@ public sealed class Parser {
 		var token = tokens[tokenIndex];
 		var location = new Location(file, text, token.Start);
 		var column = new Column(Name(), DataType());
+		table.Add(location, column);
 
 		// Search the postscript for column constraints
-		for (;;) {
-			if (IsElementEnd()) {
-				table.Add(location, column);
-				return;
-			}
+		while (!isEnd()) {
 			switch (Word()) {
 			case "primary":
 				switch (Word(1)) {
