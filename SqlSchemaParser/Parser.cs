@@ -304,11 +304,16 @@ public sealed class Parser {
 		// References
 		Expect("references");
 		key.RefTable = Table();
-		Expect('(');
-		do
-			key.RefColumns.Add(Column(key.RefTable));
-		while (Eat(','));
-		Expect(')');
+		if (Eat('(')) {
+			do
+				key.RefColumns.Add(Column(key.RefTable));
+			while (Eat(','));
+			Expect(')');
+		} else {
+			if (key.RefTable.PrimaryKey == null)
+				throw Error($"{key.RefTable} does not have a primary key", false);
+			key.RefColumns.AddRange(key.RefTable.PrimaryKey.Columns);
+		}
 
 		// Search the postscript for actions
 		for (;;) {
@@ -885,17 +890,20 @@ public sealed class Parser {
 
 	// Error functions return exception objects instead of throwing immediately
 	// so 'throw Error(...)' can mark the end of a case block
-	Exception Error(string message) {
+	Exception Error(string message, bool showToken = true) {
 		if (tokenIndex < 0) {
 			var location = new Location(file, text, textIndex);
 			message = $"{location}: {message}";
 		} else {
 			var token = tokens[tokenIndex];
-			var s = text[token.Start..token.End];
-			if (token.Type == -1)
-				s = "EOF";
 			var location = new Location(file, text, token.Start);
-			message = $"{location}: {s}: {message}";
+			if (showToken) {
+				var s = text[token.Start..token.End];
+				if (token.Type == -1)
+					s = "EOF";
+				message = $"{location}: {s}: {message}";
+			} else
+				message = $"{location}: {message}";
 		}
 		return new SqlError(message);
 	}
