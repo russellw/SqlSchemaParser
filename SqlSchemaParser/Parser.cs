@@ -360,7 +360,7 @@ public sealed class Parser {
 		}
 	}
 
-	Key Key(Table table) {
+	Key Key(Table table, Column? column) {
 		switch (Word()) {
 		case "primary":
 			tokenIndex++;
@@ -373,13 +373,17 @@ public sealed class Parser {
 		default:
 			throw Error("expected key");
 		}
-		while (!Eat('('))
-			Ignore();
 		var key = new Key();
-		do
-			key.Add(Column(table));
-		while (Eat(','));
-		Expect(')');
+
+		if (column == null) {
+			while (!Eat('('))
+				Ignore();
+			do
+				key.Add(Column(table));
+			while (Eat(','));
+			Expect(')');
+		} else
+			key.Add(column);
 		return key;
 	}
 
@@ -403,10 +407,10 @@ public sealed class Parser {
 			ForeignKey(table, null, isEnd);
 			return;
 		case "primary":
-			table.AddPrimaryKey(location, Key(table));
+			table.AddPrimaryKey(location, Key(table, null));
 			return;
 		case "unique":
-			table.UniqueKeys.Add(Key(table));
+			table.UniqueKeys.Add(Key(table, null));
 			return;
 		}
 	}
@@ -442,16 +446,8 @@ public sealed class Parser {
 				ForeignKey(table, column, isEnd);
 				continue;
 			case "primary":
-				switch (Word(1)) {
-				case "key": {
-					tokenIndex += 2;
-					var key = new Key();
-					key.Add(column);
-					table.AddPrimaryKey(location, key);
-					continue;
-				}
-				}
-				break;
+				table.AddPrimaryKey(location, Key(table, column));
+				continue;
 			case "null":
 				tokenIndex++;
 				continue;
