@@ -61,7 +61,9 @@ public sealed class Parser {
 				switch (Word(1)) {
 				case "table": {
 					tokenIndex += 2;
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
 					var ifExists = false;
+#pragma warning restore CS0219 // Variable is assigned but its value is never used
 					if (Word() == "if" && Word(1) == "exists") {
 						tokenIndex += 2;
 						ifExists = true;
