@@ -309,18 +309,20 @@ public sealed class Parser {
 		throw Error("expected action");
 	}
 
-	void ForeignKey(Table table, Callback isEnd) {
-		Debug.Assert(Word() == "foreign");
-		tokenIndex++;
-		Expect("key");
+	void ForeignKey(Table table, Column? column, Callback isEnd) {
+		if (Eat("foreign"))
+			Expect("key");
+		var key = new ForeignKey();
 
 		// Columns
-		Expect('(');
-		var key = new ForeignKey();
-		do
-			key.Columns.Add(Column(table));
-		while (Eat(','));
-		Expect(')');
+		if (column == null) {
+			Expect('(');
+			do
+				key.Columns.Add(Column(table));
+			while (Eat(','));
+			Expect(')');
+		} else
+			key.Columns.Add(column);
 
 		// References
 		Expect("references");
@@ -398,7 +400,7 @@ public sealed class Parser {
 		var location = new Location(file, text, token.Start);
 		switch (Word()) {
 		case "foreign":
-			ForeignKey(table, isEnd);
+			ForeignKey(table, null, isEnd);
 			return;
 		case "primary":
 			table.AddPrimaryKey(location, Key(table));
@@ -435,6 +437,10 @@ public sealed class Parser {
 		// Search the postscript for column constraints
 		while (!isEnd()) {
 			switch (Word()) {
+			case "foreign":
+			case "references":
+				ForeignKey(table, column, isEnd);
+				continue;
 			case "primary":
 				switch (Word(1)) {
 				case "key": {
