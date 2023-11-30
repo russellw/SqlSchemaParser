@@ -863,7 +863,7 @@ public sealed class Parser {
 				case '"':
 					break;
 				default:
-					tokens.Add(new Token(textIndex, i, kQuotedName, sb.ToString()));
+					tokens.Add(new Token(textIndex, i, kQuotedName, sb.ToString().ToLowerInvariant()));
 					textIndex = i;
 					return;
 				}
