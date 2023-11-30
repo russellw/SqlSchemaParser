@@ -155,6 +155,12 @@ public class UnitTest1 {
 	}
 
 	[Fact]
+	public void Cities() {
+		var schema = ParseFile("sql-server/cities.sql");
+		Assert.Equal(2, schema.Tables.Count);
+	}
+
+	[Fact]
 	public void Northwind() {
 		var schema = ParseFile("sql-server-samples/instnwnd.sql");
 		Assert.Equal(13, schema.Tables.Count);
