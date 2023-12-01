@@ -4,7 +4,7 @@ use test123987632022
 
 create table countries(
     code nchar(2) primary key,
-    name nvarchar(60)
+    name nvarchar(60) unique
 )
 insert countries values('DE','Germany')
 insert countries values('FR','France')

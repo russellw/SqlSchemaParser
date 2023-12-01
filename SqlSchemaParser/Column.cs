@@ -4,6 +4,7 @@ namespace SqlSchemaParser;
 public sealed class Column {
 	public string Name;
 	public DataType DataType;
+	public bool AutoIncrement;
 	public bool Nullable = true;
 
 	public string Sql() {
