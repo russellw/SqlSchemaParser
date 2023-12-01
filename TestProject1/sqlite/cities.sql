@@ -1,3 +1,7 @@
+-- sqlite can dump database with `.dump`
+-- However, it stores DDL in the input format
+-- so the dump does not translate the schema to a canonical form
+
 PRAGMA foreign_keys=ON;
 
 create table countries(
