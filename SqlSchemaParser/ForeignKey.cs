@@ -3,7 +3,7 @@
 namespace SqlSchemaParser;
 public sealed class ForeignKey {
 	public List<Column> Columns = new();
-	public Table? RefTable;
+	public Table RefTable = null!;
 	public List<Column> RefColumns = new();
 	public Action OnDelete = Action.NO_ACTION;
 	public Action OnUpdate = Action.NO_ACTION;
