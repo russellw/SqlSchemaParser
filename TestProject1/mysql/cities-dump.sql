@@ -1,3 +1,9 @@
+-- database commands re-added by hand:
+DROP DATABASE IF EXISTS test123987632022;
+CREATE DATABASE test123987632022;
+use test123987632022;
+
+
 -- MySQL dump 10.13  Distrib 8.0.33, for Win64 (x86_64)
 --
 -- Host: localhost    Database: test123987632022
