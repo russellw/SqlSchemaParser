@@ -370,6 +370,9 @@ public sealed class Parser {
 			tokenIndex++;
 			Eat("key");
 			break;
+		case "key":
+			tokenIndex++;
+			break;
 		default:
 			throw Error("expected key");
 		}
@@ -410,6 +413,7 @@ public sealed class Parser {
 			table.AddPrimaryKey(location, Key(table, null));
 			return;
 		case "unique":
+		case "key":
 			table.UniqueKeys.Add(Key(table, null));
 			return;
 		}
@@ -424,6 +428,7 @@ public sealed class Parser {
 		}
 		switch (Word()) {
 		case "foreign":
+		case "key":
 		case "primary":
 		case "unique":
 		case "check":
